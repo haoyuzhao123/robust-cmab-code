@@ -1,6 +1,7 @@
 import os
 from Oracle.generalGreedy import generalGreedy
-from Oracle.degreeDiscount import degreeDiscountIC, degreeDiscountIC2, degreeDiscountIAC, degreeDiscountIAC2, degreeDiscountStar, degreeDiscountIAC3
+from Oracle.greedySetCover import greedySetCover
+from Oracle.degreeDiscount import degreeDiscountIAC3
 from Oracle.IMM import imm
 
 save_address = "./SimulationResults"
@@ -37,7 +38,9 @@ lambda_ = 0.4
 gamma = 0.1
 dimension = 4
 seed_size = 50
-iterations = 15000
+iterations = 100
 
+
+oracle = greedySetCover
 # oracle = degreeDiscountIAC3
-oracle = imm
+# oracle = imm

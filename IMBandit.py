@@ -12,7 +12,7 @@ from BanditAlg.CUCB import UCB1Algorithm
 from BanditAlg.CUCB_Attack import UCB1AlgorithmAttack
 # from BanditAlg.BanditAlgorithms_MF import MFAlgorithm
 # from BanditAlg.BanditAlgorithms_LinUCB import N_LinUCBAlgorithm
-from IC.IC import runIC, runICmodel, runICmodel_n
+from IC.IC import runICmodel_n, runICmodel_single_step
 # from IC.runIAC  import weightedEp, runIAC, runIACmodel, randomEp, uniformEp
 
 class simulateOnlineData:
@@ -44,7 +44,7 @@ class simulateOnlineData:
             
             for alg_name, alg in list(algorithms.items()): 
                 S = alg.decide() 
-                reward, live_nodes, live_edges = runICmodel_n(G, S, self.TrueP)
+                reward, live_nodes, live_edges = runICmodel_single_step(G, S, self.TrueP)
 
                 alg.updateParameters(S, live_nodes, live_edges, iter_)
 
@@ -159,7 +159,6 @@ class simulateOnlineData:
             ax1.set_ylabel('Loss of Probability', color=color)
             ax1.plot(self.tim_, loss[:, 0], color=color, label='Probability')
             ax1.tick_params(axis='y', labelcolor=color)
-
             ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
             ax2.set_ylabel('Loss of Theta and Beta', color='tab:blue')  # we already handled the x-label with ax1
             ax2.plot(self.tim_, loss[:, 1], color='tab:blue', linestyle=':', label = r'$\theta$')

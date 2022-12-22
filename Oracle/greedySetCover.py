@@ -5,10 +5,10 @@
 __author__ = 'ivanovsergey'
 
 from Tool.priorityQueue import PriorityQueue as PQ
-from IC.IC import runICmodel_n
+from IC.IC import runICmodel_single_step
 import heapq
 
-def generalGreedy(G, k, p):
+def greedySetCover(G, k, p):
     ''' Finds initial seed set S using general greedy heuristic
     Input: G -- networkx Graph object
     k -- number of initial nodes needed
@@ -27,7 +27,7 @@ def generalGreedy(G, k, p):
             if v not in S:
                 reward = 0
                 for j in range(R): # run R times Random Cascade
-                    r, T_new, _ = runICmodel_n(G, v, p, T+[v])
+                    r, T_new, _ = runICmodel_single_step(G, v, p, T+[v])
                     reward += r
                 s.add_task(v, -reward/R, T_new) # add normalized spread value
         task, priority, T = s.pop_item()
