@@ -20,7 +20,7 @@ class UCB1Struct(ArmBaseStruct):
         if self.numPlayed==0:
             return 0
         else:
-            p = self.totalReward / float(self.numPlayed) + 0.1*np.sqrt(3*np.log(allNumPlayed) / (2.0 * self.numPlayed))
+            p = self.totalReward / float(self.numPlayed) + 1.0*np.sqrt(3*np.log(allNumPlayed) / (2.0 * self.numPlayed))
             if p > self.p_max:
                 p = self.p_max
                 # print 'p_max'

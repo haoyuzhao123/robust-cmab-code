@@ -50,6 +50,8 @@ class simulateOnlineData:
 
                 self.AlgReward[alg_name].append(reward)
 
+                print(alg_name, reward)
+
             self.resultRecord(iter_)
 
         self.showResult()
@@ -88,7 +90,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Reward")
         axa.set_title("Average Reward")
-        plt.savefig('./SimulationResults/AvgReward' + str(self.startTime.strftime('_%m_%d_%H_%M'))+'.png')
+        #plt.savefig('./SimulationResults/AvgReward' + str(self.startTime.strftime('_%m_%d_%H_%M'))+'.png')
         plt.show()
 
         # plot accumulated reward
@@ -100,9 +102,9 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Reward")
         axa.set_title("Accumulated Reward")
-        plt.savefig('./SimulationResults/AcuReward' + str(self.startTime.strftime('_%m_%d_%H_%M'))+'.png')
+        #plt.savefig('./SimulationResults/AcuReward' + str(self.startTime.strftime('_%m_%d_%H_%M'))+'.png')
         plt.show()
-
+        '''
         # plot cost
         f, axa = plt.subplots(1, sharex=True)
         axa.plot(self.tim_, algorithms['CUCB_Attack'].cost, label = 'CUCB_Attack')
@@ -142,13 +144,15 @@ class simulateOnlineData:
         axa.set_title("Number of times target arm is played")
         plt.savefig('./SimulationResults/TargetarmPlayed' + str(self.startTime.strftime('_%m_%d_%H_%M'))+'.png')
         plt.show()
+        '''
 
+        '''
         for alg_name in algorithms.keys():  
             try:
                 loss = algorithms[alg_name].getLoss()
             except:
                 continue
-            '''
+            
             f, ax1 = plt.subplots()
             color = 'tab:red'
             ax1.set_xlabel("Iteration")
@@ -165,8 +169,9 @@ class simulateOnlineData:
             f.tight_layout()  # otherwise the right y-label is slightly clipped
             plt.savefig('./SimulationResults/Loss' + str(self.startTime.strftime('_%m_%d_%H_%M'))+'.png')
             plt.show()
-            '''
+            
             np.save('./SimulationResults/Loss-{}'.format(alg_name) + str(self.startTime.strftime('_%m_%d_%H_%M'))+'.npy', loss)
+            '''
         
 if __name__ == '__main__':
     start = time.time()
@@ -188,7 +193,7 @@ if __name__ == '__main__':
 
     algorithms = {}
     algorithms['CUCB'] = UCB1Algorithm(G, P, parameter, seed_size, oracle)
-    algorithms['CUCB_Attack'] = UCB1AlgorithmAttack(G, P, parameter, seed_size, oracle)
+    #algorithms['CUCB_Attack'] = UCB1AlgorithmAttack(G, P, parameter, seed_size, oracle)
     # algorithms['egreedy_0.1'] = eGreedyAlgorithm(G, seed_size, oracle, 0.1)
     # algorithms['LinUCB'] = N_LinUCBAlgorithm(G, P, parameter, seed_size, oracle, dimension*dimension, alpha_1, lambda_, feature_dic, 1)
     # algorithms['OurAlgorithm'] = MFAlgorithm(G, P, parameter, seed_size, oracle, dimension)

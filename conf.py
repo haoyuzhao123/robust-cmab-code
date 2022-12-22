@@ -36,8 +36,8 @@ alpha_2 = 0.1
 lambda_ = 0.4
 gamma = 0.1
 dimension = 4
-seed_size = 200
-iterations = 1000
+seed_size = 50
+iterations = 15000
 
 # oracle = degreeDiscountIAC3
 oracle = imm
