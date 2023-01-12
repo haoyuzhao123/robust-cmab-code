@@ -27,10 +27,9 @@ def greedySetCover(G, k, p):
             if v not in S:
                 reward = 0
                 for j in range(R): # run R times Random Cascade
-                    r, T_new, _ = runICmodel_single_step(G, v, p, T+[v])
+                    r, T_new, _ = runICmodel_single_step(G, v, p, T)
                     reward += r
                 s.add_task(v, -reward/R, T_new) # add normalized spread value
         task, priority, T = s.pop_item()
         S.append(task)
-        # print(i, k, time.time() - start)
     return S

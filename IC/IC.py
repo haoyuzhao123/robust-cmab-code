@@ -58,16 +58,13 @@ def runICmodel_single_step (G, v_added, P, T=[]):
     reward = 0
     if type(v_added).__name__ != 'list':
         S = [v_added]
+        T_new = [v_added]
     else:
         S = deepcopy(v_added)
+        T_new = deepcopy(v_added)
 
     E = {}
-
-    if type(T).__name__ == 'list' and len(T) > 0:
-        T_new = deepcopy(T)
-    else:
-        T_new = deepcopy(S)
-
+    
     for v_new in S:
         for v in G[v_new]: # for neighbors of a selected node                
             # w = G[T[i]][v]['weight'] # count the number of edges between two nodes (weight is ther weight of the edge between the two nodes, always 1)
@@ -80,7 +77,9 @@ def runICmodel_single_step (G, v_added, P, T=[]):
                     E[(v_new, v)] += 1
                 else:
                     E[(v_new, v)] = 1
-    reward = len(T_new)
+
+    reward = len(list(set(T_new).difference(set(T))))
+    T_new = list(set(T_new).union(set(T)))
 
     return reward, T_new, E
 

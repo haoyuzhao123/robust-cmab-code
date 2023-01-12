@@ -43,7 +43,7 @@ class UCB1AlgorithmAttack:
             self.currentP.add_edge(u,v, weight=0)
         self.list_loss = []
         self.TotalPlayCounter = 0
-        S_Star_nodes = sample(range(len(G.nodes())), self.seed_size)
+        S_Star_nodes = sample(range(len(G.nodes())), 2000)
         self.S_star = []
         for i in S_Star_nodes:
             self.S_star.append(G.nodes()[i])

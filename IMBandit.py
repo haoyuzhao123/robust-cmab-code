@@ -5,7 +5,7 @@ import datetime
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
-from conf import *
+from IMconf import *
 from Tool.utilFunc import *
 
 from BanditAlg.CUCB import UCB1Algorithm 
@@ -38,7 +38,7 @@ class simulateOnlineData:
         optS = self.oracle(self.G, self.seed_size, self.TrueP)
 
         for iter_ in range(self.iterations):
-            optimal_reward, live_nodes, live_edges = runICmodel_n(G, optS, self.TrueP)
+            optimal_reward, live_nodes, live_edges = runICmodel_single_step(G, optS, self.TrueP)
             self.result_oracle.append(optimal_reward)
             print('oracle', optimal_reward)
             
