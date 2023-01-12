@@ -13,7 +13,7 @@ class ArmBaseStruct(object):
        
     def updateParameters(self, reward):
         self.totalReward += reward
-        self.numPlayed +=1
+        self.numPlayed += 1
         self.averageReward = self.totalReward/float(self.numPlayed)
 
 class LCB1Struct(ArmBaseStruct):    
@@ -21,7 +21,7 @@ class LCB1Struct(ArmBaseStruct):
         if self.numPlayed==0:
             return 0
         else:
-            p = self.totalReward / float(self.numPlayed) - 0.1*np.sqrt(3*np.log(allNumPlayed) / (2.0 * self.numPlayed))
+            p = self.totalReward / float(self.numPlayed) - 0.1 * np.sqrt(3*np.log(allNumPlayed) / (2.0 * self.numPlayed))
             if p > self.p_max:
                 p = self.p_max
                 # print 'p_max'
@@ -39,45 +39,43 @@ class LCB1AlgorithmAttack:
         self.feedback = feedback
         self.arms = {}
         #Initialize P
-        self.currentP =nx.DiGraph()
+        self.currentP = nx.create_empty_copy(P)
         for (u,v) in P.edges():
             self.arms[(u,v)] = LCB1Struct((u,v))
             self.currentP.add_edge(u,v, weight=0)
         self.list_loss = []
         self.TotalPlayCounter = 0
 
-        path_list = target
-        self.opt_path_length = len(path_list) - 1
-        self.opt_path = {}
-        for i in range(len(path_list)):
-            if i==0:
-                u = path_list[i]
-                continue
-            v = path_list[i]
-            self.opt_path[(u,v)] = 0
-            u = v
+        list = target
+        self.target = {}
+        self.target_length = len(target)
+        for (u,v) in list:
+            self.target[(u,v)] = 0
        
         self.num_targetarm_played = []
         self.totalCost = []
         self.cost = []
         self.num_basearm_played = []
-        
+        # self.basearmestimate1 = []
+        # self.basearmestimate2 = []
+        # self.basearmestimate3 = []
+        # self.basearmestimate4 = []   
+     
     def decide(self, params):
         self.TotalPlayCounter += 1
         S = self.oracle(self.currentP, params)
-        # S = self.oracle(self.G, self.seed_size, self.currentP)
         return S       
 
     def numTargetPlayed(self, live_edges):
         num_basearm_played = 0
         num_targetarm_played = 0
         for (u,v) in live_edges:
-            if (u,v) in self.opt_path:
+            if (u,v) in self.target:
                 num_basearm_played += 1
-                self.opt_path[(u,v)] = self.opt_path[(u,v)] + 1
-        if num_basearm_played == self.opt_path_length:
+                self.target[(u,v)] = self.target[(u,v)] + 1
+        if num_basearm_played == self.target_length:
             num_targetarm_played = 1
-        num_basearm_played = num_basearm_played/self.opt_path_length
+        num_basearm_played = num_basearm_played/self.target_length
         self.num_basearm_played.append(num_basearm_played)
         if len(self.num_targetarm_played) == 0:
             self.num_targetarm_played.append(num_targetarm_played)
@@ -91,25 +89,34 @@ class LCB1AlgorithmAttack:
         cost = 0
         for (u, v, weight) in self.trueP.edges(data="weight"):
             if (u,v) in live_edges:
-                if (u,v) in self.opt_path:
+                if (u,v) in self.target:
                     self.arms[(u, v)].updateParameters(reward=live_edges[(u,v)])
                 else:
                     self.arms[(u, v)].updateParameters(reward=1)
                     cost += 1 - live_edges[(u,v)] # or just 1
 
+                self.currentP[u][v]['weight'] = self.arms[(u,v)].getProb(self.TotalPlayCounter) 
+                estimateP = self.currentP[u][v]['weight']
+                trueP = self.trueP[u][v]['weight']
+                loss_p += np.abs(estimateP-trueP)
+                count += 1
             #update current P
             #print self.TotalPlayCounter
             self.currentP[u][v]['weight'] = self.arms[(u,v)].getProb(self.TotalPlayCounter) 
-            estimateP = self.currentP[u][v]['weight']
-            trueP = self.trueP[u][v]['weight']
-            loss_p += np.abs(estimateP-trueP)
-            count += 1
+            # estimateP = self.currentP[u][v]['weight']
+            # trueP = self.trueP[u][v]['weight']
+            # loss_p += np.abs(estimateP-trueP)
+            # count += 1
         self.list_loss.append([loss_p/count])
         if len(self.totalCost) == 0:
             self.totalCost = [cost]
         else:
             self.totalCost.append(self.totalCost[-1] + cost)
         self.cost.append(cost)
+        # self.basearmestimate1.append(self.currentP[83][86]['weight'])
+        # self.basearmestimate2.append(self.currentP[86][1937]['weight'])
+        # self.basearmestimate3.append(self.currentP[83][85]['weight'])
+        # self.basearmestimate4.append(self.currentP[85][1937]['weight'])
         self.numTargetPlayed(live_edges)
 
     def getLoss(self):

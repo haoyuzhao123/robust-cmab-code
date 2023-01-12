@@ -31,7 +31,7 @@ class LCB1Struct(ArmBaseStruct):
 
              
 class LCB1Algorithm:
-    def __init__(self,  P, oracle, feedback = 'edge'):
+    def __init__(self, P, oracle, feedback = 'edge'):
         # self.G = G
         self.trueP = P
         # self.parameter = parameter  
@@ -40,13 +40,16 @@ class LCB1Algorithm:
         self.feedback = feedback
         self.arms = {}
         #Initialize P
-        self.currentP =nx.DiGraph()
+        self.currentP = nx.create_empty_copy(P)
         for (u,v) in P.edges():
             self.arms[(u,v)] = LCB1Struct((u,v))
             self.currentP.add_edge(u,v, weight=0)
         self.list_loss = []
         self.TotalPlayCounter = 0
-        
+        # self.basearmestimate1 = []
+        # self.basearmestimate2 = []
+        # self.basearmestimate3 = []
+        # self.basearmestimate4 = []        
     def decide(self, params):
         '''
         params for shortest path: a dictionary with keys "start" and "end"
@@ -54,7 +57,6 @@ class LCB1Algorithm:
         '''
         self.TotalPlayCounter += 1
         S = self.oracle(self.currentP, params)
-        # S = self.oracle(self.G, self.seed_size, self.currentP)
         return S
          
     def updateParameters(self, live_edges, iter_): 
@@ -63,14 +65,23 @@ class LCB1Algorithm:
         for (u, v, weight) in self.trueP.edges(data="weight"):
             if (u, v) in live_edges:
                 self.arms[(u, v)].updateParameters(reward=live_edges[(u,v)])
+                self.currentP[u][v]['weight'] = self.arms[(u,v)].getProb(self.TotalPlayCounter) 
+                estimateP = self.currentP[u][v]['weight']
+                trueP = self.trueP[u][v]['weight']
+                loss_p += np.abs(estimateP-trueP)
+                count += 1
             #update current P
             #print self.TotalPlayCounter
             self.currentP[u][v]['weight'] = self.arms[(u,v)].getProb(self.TotalPlayCounter) 
-            estimateP = self.currentP[u][v]['weight']
-            trueP = self.trueP[u][v]['weight']
-            loss_p += np.abs(estimateP-trueP)
-            count += 1
+            # estimateP = self.currentP[u][v]['weight']
+            # trueP = self.trueP[u][v]['weight']
+            # loss_p += np.abs(estimateP-trueP)
+            # count += 1
         self.list_loss.append([loss_p/count])
+        # self.basearmestimate1.append(self.currentP[83][86]['weight'])
+        # self.basearmestimate2.append(self.currentP[86][1937]['weight'])
+        # self.basearmestimate3.append(self.currentP[83][85]['weight'])
+        # self.basearmestimate4.append(self.currentP[85][1937]['weight'])
 
     def getLoss(self):
         return np.asarray(self.list_loss)
