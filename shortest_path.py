@@ -15,7 +15,7 @@ from BanditAlg.CLCB_SP_Attack import LCB1AlgorithmAttack
 # from BanditAlg.BanditAlgorithms_LinUCB import N_LinUCBAlgorithm
 # from IC.IC import runICmodel_n, runICmodel_single_step
 # from IC.runIAC  import weightedEp, runIAC, runIACmodel, randomEp, uniformEp
-from Oracle.SP import ShortestPath,  TargetPath, TargetPath_Attackable
+from Oracle.SP import ShortestPath,  TargetPath_Unattackable, TargetPath_Attackable, TargetPath_Random
 np.random.seed(0)
 
 def shortest_path_env_step(P, S):
@@ -105,6 +105,19 @@ class simulateOnlineData:
         # print('average Shortest Path Weights for oracle:', np.mean(self.result_oracle))
         
         # reward
+        # for alg_name in algorithms.keys():
+        #     f, axa = plt.subplots(1, sharex=True)
+        #     axa.plot(self.tim_, algorithms[alg_name].basearmestimate1, label = alg_name+"[83,86](target)")
+        #     axa.plot(self.tim_, algorithms[alg_name].basearmestimate2, label = alg_name+"[86,1937](target)")            
+        #     axa.plot(self.tim_, algorithms[alg_name].basearmestimate3, label = alg_name+"[83,85](shortest)")
+        #     axa.plot(self.tim_, algorithms[alg_name].basearmestimate4, label = alg_name+"[85,1937](shortest)")
+        #     axa.legend(loc='upper left',prop={'size':9})
+        #     axa.set_xlabel("Iteration")
+        #     axa.set_ylabel("LCB")
+        #     axa.set_title("LCB")
+        #     plt.savefig('./SimulationResults/basearms'+ alg_name+ str(self.startTime.strftime('_%m_%d_%H_%M'))+'.png')
+        #     plt.show()
+
         f, axa = plt.subplots(1, sharex=True)
         for alg_name in algorithms.keys():  
             axa.plot(self.tim_, self.BatchCumlateReward[alg_name],label = alg_name)
@@ -249,8 +262,10 @@ if __name__ == '__main__':
         v_id = id_node[v]
         # print(u_id,v_id,prob[(u,v)])
         P.add_edge(u_id, v_id, weight=prob[(u,v)])
-    print(P[318][316])
-    print(P[1304][318])
+    print("target",P[83][86],P[86][1937])
+    print("shortest",P[83][85],P[85][1937])
+
+    # print(P[1304][318])
 
 
     print('nodes:', len(G.nodes()))
@@ -260,7 +275,7 @@ if __name__ == '__main__':
         
     simExperiment = simulateOnlineData(P, oracle, iterations, dataset)
 
-    Target, oracle_params = TargetPath_Attackable(P)
+    Target, oracle_params = TargetPath_Random(P)
     # Target =  [1458, 1461, 1460]
     # oracle_params = {"start":1458, "end":1460}
     # print(P[1458][1460])

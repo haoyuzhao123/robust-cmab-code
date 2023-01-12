@@ -11,7 +11,55 @@ def ShortestPath(P, params):
     # print(nx.shortest_path_length(P,params["start"],params["end"],weight="weight"))
     return path_list
 
-def TargetPath(P):
+def TargetPath_Random(P):
+    ''' 
+    return the target path list of attack algorithm
+    '''
+    while True:
+        s = np.random.randint(P.number_of_nodes())
+        while P.has_node(s) == False:
+            s = np.random.randint(P.number_of_nodes())
+        path_list = [s]
+        exists = {s: None}
+        path_length = 50
+        u = s
+        for i in range(path_length):
+            sample = []
+            # print(P.out_degree(u))
+            if P.out_degree(u) == 0:
+                break
+            for v in P.successors(u):
+                if v not in exists:
+                    sample.append(v)
+            if len(sample) == 0:
+                break
+            v = np.random.choice(sample)
+            exists[v] = None
+            u = v
+            path_list.append(v)
+
+        t = path_list[-1]
+        # print(path_list)
+        # print(tempG[s][path_list[1]])
+        # print(tempG[path_list[1]][t])
+        shortest_path = nx.shortest_path(P, s, t,weight="weight")
+        if shortest_path != path_list:
+            break
+    
+    target = []
+    for i in range(len(path_list)):
+        if i==0:
+            u = path_list[i]
+            continue
+        v = path_list[i]
+        target.append((u,v))
+        u = v
+    print("Target Path with weights", path_list)
+    print("shortest path with weights", shortest_path)
+    print("start",s,"end",t)
+    return target, {"start": s, "end": t}
+    
+def TargetPath_Unattackable(P):
     ''' 
     return the target path list of attack algorithm
     '''
@@ -64,11 +112,19 @@ def TargetPath(P):
             print(sm, shortest_sm, sm - shortest_sm)      
         if sm-shortest_sm > 3:
             break
-
+    
+    target = []
+    for i in range(len(path_list)):
+        if i==0:
+            u = path_list[i]
+            continue
+        v = path_list[i]
+        target.append((u,v))
+        u = v
     print("Target Path with weights",sm, path_list)
     print("shortest path with weights", shortest_sm, nx.shortest_path_length(P, s, t,weight="weight"), shortest_path)
     print("start",s,"end",t)
-    return path_list, {"start": s, "end": t}
+    return target, {"start": s, "end": t}
 
 def TargetPath_Attackable(P):
     ''' 
@@ -130,11 +186,19 @@ def TargetPath_Attackable(P):
             print(sm, shortest_sm, sm - shortest_sm)
         if sm-shortest_sm <1e-6:
             break
-
+        
+    target = []
+    for i in range(len(path_list)):
+        if i==0:
+            u = path_list[i]
+            continue
+        v = path_list[i]
+        target.append((u,v))
+        u = v
     print("Target Path with weights",sm, path_list)
     print("shortest path with weights", shortest_sm, nx.shortest_path_length(P, s, t, weight="weight"), shortest_path)
     print("start",s,"end",t)
-    return path_list, {"start": s, "end": t}
+    return target, {"start": s, "end": t}
 
 '''
 def find_path(mid, u, v):
