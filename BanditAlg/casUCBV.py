@@ -22,11 +22,11 @@ class CascadeUCB_V():
     def decide(self):
         for i in range(self.num_arms):
             v = self.w_hat[i] * (1-self.w_hat[i])
-            if self.T[i] != 0:
+            if self.T[i] == 0:
+                self.U[i] = float('inf')
+            else:
                 self.U[i] = self.w_hat[i] + (np.sqrt(4*v*np.log(self.t)/self.T[i]) + 6*np.log(self.t)/self.T[i])
                 self.U[i] = min(1, max(self.U[i], 0))
-            else:
-                self.U[i] = float('inf')
         
         best_arms = list(dict(sorted(self.U.items(), key=lambda x: x[1], reverse=True)).keys())[:self.seed_size]
         

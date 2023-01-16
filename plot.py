@@ -1,13 +1,39 @@
 import pandas as pd
 import seaborn as sns
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 import os
+import argparse
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('exp_name', type=str) ## CascadeBandit/SetCover/
+parser.add_argument('exp_type', type=str) ## Reward/Regret/Cost/Rate
+
+args = parser.parse_args()
 
 exp = []
-expName = 'CascadeBandit'
+
+if args.exp_type == 'Regret':
+    y_label = args.exp_type
+    title = "Cumulative Regret"
+
+if args.exp_type == 'Reward':
+    y_label = args.exp_type
+    title = "Average Reward"
+
+if args.exp_type == 'Cost':
+    y_label = args.exp_type
+    title = "Total Cost"
+
+if args.exp_type == 'Rate':
+    y_label = 'Count'
+    title = "Number of times Target Arm is Played"
+
 exp_num = 0
 
-while os.path.exists('./SimulationResults/' + expName + str(exp_num) + '.csv'):
-    data = pd.read_csv('./SimulationResults/' + expName + str(exp_num) + '.csv')
+while os.path.exists(os.path.join('./SimulationResults', args.exp_name, args.exp_type + str(exp_num) + '.csv')):
+    data = pd.read_csv(os.path.join('./SimulationResults', args.exp_name, args.exp_type + str(exp_num) + '.csv'))
     exp.append(data)
     exp_num += 1
 
@@ -15,11 +41,24 @@ while os.path.exists('./SimulationResults/' + expName + str(exp_num) + '.csv'):
 df = pd.concat(exp, axis=0, ignore_index=True)
 print(df)
 
-rplot = sns.lineplot(data=df, x="Time(Iteration)", y="CascadeUCB-V", label='CascadeUCB-V', color='blue')
-rplot = sns.lineplot(data=df, x="Time(Iteration)", y="CascadeUCB-V-Attack", label='CascadeUCB-V-Attack', color='red')
+grouped_df_mean = df.groupby(["Time(Iteration)"]).mean()
+grouped_df_std = df.groupby(["Time(Iteration)"]).std()
 
-rplot.set_xlabel('Iterations')
-rplot.set_ylabel('Regret')
 
-fig = rplot.get_figure()
-fig.savefig("./SimulationResults/out.png") 
+colors = list(mcolors.TABLEAU_COLORS.keys())
+cols = list(grouped_df_mean.columns)
+
+for c in range(len(cols)):
+    plt.plot(range(grouped_df_mean.shape[0]), grouped_df_mean[cols[c]], label=cols[c], color=colors[c])
+    plt.fill_between(grouped_df_std.index, grouped_df_mean[cols[c]] - grouped_df_std[cols[c]], grouped_df_mean[cols[c]] + grouped_df_std[cols[c]], color=colors[c], alpha=0.2)
+
+print("plotting")
+plt.xlabel('Iterations')
+plt.ylabel(y_label)
+plt.legend(loc="upper left")
+plt.title(title)
+
+print("saving")
+plt.savefig(os.path.join('./SimulationResults', args.exp_name, args.exp_type + '.png'))
+# plt.show()
+

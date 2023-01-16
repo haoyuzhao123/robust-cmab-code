@@ -43,8 +43,9 @@ class simulateOnlineData:
                 regret = alg.click_prob - self.dataset.click_prob
 
                 C = -1
-                for i in S:
-                    if self.dataset.w[i] >= random.uniform(0, 1):
+                for i in range(len(S)):
+                    arm = S[i]
+                    if self.dataset.w[arm] >= random.uniform(0, 1):
                         # print(self.dataset.w[i], random.uniform(0, 1), i, S)
                         C = i
                         break
@@ -61,9 +62,12 @@ class simulateOnlineData:
     def resultRecord(self, iter_=None):
         # if initialize
         if iter_ is None:
-            self.filenameWriteRegret = os.path.join(save_address, 'CascadeBanditRegret{}.csv'.format(str(args.exp_num)))
-            self.filenameWriteCost = os.path.join(save_address, 'CascadeBanditCost{}.csv'.format(str(args.exp_num)))
-            self.filenameTargetRate = os.path.join(save_address, 'CascadeBanditRate{}.csv'.format(str(args.exp_num)))
+            self.filenameWriteRegret = os.path.join(save_address, 'Regret{}.csv'.format(str(args.exp_num)))
+            self.filenameWriteCost = os.path.join(save_address, 'Cost{}.csv'.format(str(args.exp_num)))
+            self.filenameTargetRate = os.path.join(save_address, 'Rate{}.csv'.format(str(args.exp_num)))
+
+            if not os.path.exists(save_address):
+                os.mkdir(save_address)
 
             if os.path.exists(self.filenameWriteRegret) or os.path.exists(self.filenameWriteCost) or os.path.exists(self.filenameTargetRate):
                 raise ValueError ("Save File exists already, please check experiment number")
@@ -132,7 +136,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Regret")
         axa.set_title("Average Regret")
-        plt.savefig('./SimulationResults/AvgRegret' + str(self.startTime.strftime('_%m_%d_%H_%M'))+'.png')
+        plt.savefig('./SimulationResults/CascadeBandit/AvgRegret' + str(args.exp_num)+'.png')
         plt.show()
 
         # plot cost
@@ -144,7 +148,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Cost")
         axa.set_title("Cost")
-        plt.savefig('./SimulationResults/Cost' + str(self.startTime.strftime('_%m_%d_%H_%M'))+'.png')
+        plt.savefig('./SimulationResults/CascadeBandit/Cost' + str(args.exp_num)+'.png')
         plt.show()
 
         # plot cumulative cost
@@ -156,7 +160,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Cost")
         axa.set_title("Total Cost")
-        plt.savefig('./SimulationResults/TotalCost' + str(self.startTime.strftime('_%m_%d_%H_%M'))+'.png')
+        plt.savefig('./SimulationResults/CascadeBandit/TotalCost' + str(args.exp_num)+'.png')
         plt.show()
 
         # plot basearm played
@@ -168,7 +172,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Percentage")
         axa.set_title("Percentage of basearms in superarm played")
-        plt.savefig('./SimulationResults/BasearmPlayed' + str(self.startTime.strftime('_%m_%d_%H_%M'))+'.png')
+        plt.savefig('./SimulationResults/CascadeBandit/BasearmPlayed' + str(args.exp_num)+'.png')
         plt.show()
 
         # plot superarm played
@@ -180,7 +184,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Count")
         axa.set_title("Number of times target arm is played")
-        plt.savefig('./SimulationResults/TargetarmPlayed' + str(self.startTime.strftime('_%m_%d_%H_%M'))+'.png')
+        plt.savefig('./SimulationResults/CascadeBandit/TargetarmPlayed' + str(args.exp_num)+'.png')
         plt.show()
 
 

@@ -28,7 +28,7 @@ class UCB1Struct(ArmBaseStruct):
 
              
 class UCB1AlgorithmAttack:
-    def __init__(self, G, P, parameter, seed_size, oracle, feedback = 'edge'):
+    def __init__(self, G, P, parameter, seed_size, target_arms, oracle, feedback = 'edge'):
         self.G = G
         self.trueP = P
         self.parameter = parameter  
@@ -43,10 +43,8 @@ class UCB1AlgorithmAttack:
             self.currentP.add_edge(u,v, weight=0)
         self.list_loss = []
         self.TotalPlayCounter = 0
-        S_Star_nodes = sample(range(len(G.nodes())), 2000)
-        self.S_star = []
-        for i in S_Star_nodes:
-            self.S_star.append(G.nodes()[i])
+
+        self.target_arms = target_arms
         self.num_targetarm_played = []
         self.totalCost = []
         self.cost = []
@@ -61,7 +59,7 @@ class UCB1AlgorithmAttack:
         num_basearm_played = 0
         num_targetarm_played = 0
         for u in S:
-            if u in self.S_star:
+            if u in self.target_arms:
                 num_basearm_played += 1
         if num_basearm_played == self.seed_size:
             num_targetarm_played = 1
@@ -82,7 +80,7 @@ class UCB1AlgorithmAttack:
         for u in live_nodes:
             for (u, v) in self.G.edges(u):
                 if (u,v) in live_edges:
-                    if (u in self.S_star and u in S) or (v in self.S_star and v in S):
+                    if (u in self.target_arms and u in S) or (v in self.target_arms and v in S): ## because of biderectionality
                         self.arms[(u, v)].updateParameters(reward=live_edges[(u,v)])
                     else:
                         self.arms[(u, v)].updateParameters(reward=0)

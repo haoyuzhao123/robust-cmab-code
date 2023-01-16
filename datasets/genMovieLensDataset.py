@@ -48,15 +48,8 @@ class genMovieLensDataset():
 
         ## subsample best movies
         means = np.sort(means, axis=0)[::-1]
-        means = means[:100, :]
-        # print(means)
-        # np.random.shuffle(means)
-        # print(means)
-
-
-        # ## randomly subsample from top 5000 movies movies
-        # means = np.sort(means, axis=0)[::-1]
-        # means = np.random.choice(means[:5000, :].flatten(), (1000, 1), replace=False)
+        means = means[:5000, :]
+        np.random.shuffle(means)
 
         self.w = {}
         self.num_arms = 0
@@ -67,10 +60,6 @@ class genMovieLensDataset():
 
         self.best_arms = list(dict(sorted(self.w.items(), key=lambda x: x[1], reverse=True)).keys())[:seed_size]
         self.target_arms = list(dict(sorted(self.w.items(), key=lambda x: x[1], reverse=True)).keys())[seed_size:2*seed_size]
-
-        # print(self.best_arms, self.target_arms)
-        # exit()
-        # self.target_arms = list(dict(sorted(self.w.items(), key=lambda x: x[1])).keys())[:seed_size]
 
         self.click_prob = 1
         for i in self.best_arms:
