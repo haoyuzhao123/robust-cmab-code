@@ -9,14 +9,27 @@ import matplotlib.pyplot as plt
 # from conf import *
 from Tool.utilFunc import *
 
-from BanditAlg.CLCB_SP import LCB1Algorithm 
-from BanditAlg.CLCB_SP_Attack import LCB1AlgorithmAttack
-# from BanditAlg.BanditAlgorithms_MF import MFAlgorithm
-# from BanditAlg.BanditAlgorithms_LinUCB import N_LinUCBAlgorithm
-# from IC.IC import runICmodel_n, runICmodel_single_step
-# from IC.runIAC  import weightedEp, runIAC, runIACmodel, randomEp, uniformEp
-from Oracle.SP import ShortestPath,  TargetPath_Unattackable, TargetPath_Attackable, TargetPath_Random
-np.random.seed(0)
+from BanditAlg.CLCB import LCB1Algorithm 
+from BanditAlg.CLCB_Attack import LCB1AlgorithmAttack
+from Oracle.SP import ShortestPath,  TargetPath_Unattackable, TargetPath_Attackable, TargetPath_RandomWalk, TargetPath_RandomWeight
+
+def clean_to_weakly_connected(P):
+    comp_gen = nx.weakly_connected_components(P)
+    max_comp = []
+    s = 0
+    num = 0
+    for comp in comp_gen:
+        if len(comp)>len(max_comp):
+            max_comp  = comp
+        # print(len(comp))
+        s += len(comp)
+        num += 1
+    print("forests size",s, num)
+    cleaned_G = G.subgraph(max_comp)
+    comp_gen = nx.weakly_connected_components(cleaned_G)
+    for comp in comp_gen:
+        print("final comp",len(comp))
+    return cleaned_G
 
 def shortest_path_env_step(P, S):
     '''
@@ -41,16 +54,13 @@ def shortest_path_env_step(P, S):
 
 class simulateOnlineData:
     def __init__(self,  P, oracle, iterations, dataset):
-        # self.G = G
         self.TrueP = P
-        # self.seed_size = seed_size
         self.oracle = oracle
         self.iterations = iterations
         self.dataset = dataset
         self.startTime = datetime.datetime.now()
         self.BatchCumlateReward = {}
         self.AlgReward = {}
-        # self.result_oracle = []
 
     def runAlgorithms(self, algorithms, oracle_params):
         self.tim_ = []
@@ -61,23 +71,28 @@ class simulateOnlineData:
         self.resultRecord()
 
         for iter_ in range(self.iterations):
-            # optimal_reward, live_nodes, live_edges = runICmodel_n(G, optS, self.TrueP)
-            # self.result_oracle.append(optimal_reward)
-            # print('oracle', optimal_reward)
+
             
             for alg_name, alg in list(algorithms.items()): 
                 Superarm = alg.decide(oracle_params) 
-                # reward, live_nodes, live_edges = runICmodel_single_step(G, S, self.TrueP)
                 total_cost, live_edges = shortest_path_env_step(P, Superarm)
                 alg.updateParameters(live_edges, iter_)
 
                 self.AlgReward[alg_name].append(total_cost)
-                if iter_ % 20 == 0:
+                if iter_ % 200 == 0:
                     print(iter_, alg_name, total_cost)
 
             self.resultRecord(iter_)
 
         self.showResult()
+        attack_algo = 'CLCB_Attack'
+        num_targetarm_played = algorithms[attack_algo].num_targetarm_played
+        final_length = 500
+        percent = num_targetarm_played[-1]/len(num_targetarm_played)
+        if len(num_targetarm_played) >final_length:
+            percent = (num_targetarm_played[-1]-num_targetarm_played[-final_length-1])/ final_length
+        print(percent)
+        return percent > 0.95
 
     def resultRecord(self, iter_=None):
         # if initialize
@@ -222,14 +237,15 @@ class simulateOnlineData:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--graph", help="the address of graph data", type=str, default='./datasets/Flickr/SubG12-15.G')
+    parser.add_argument("--graph", help="the address of graph data", type=str, default='./datasets/Flickr/G_Union.G')
     parser.add_argument("--prob", help="the address of probability", type=str, default='./datasets/Flickr/ProbUnion.dic')
     parser.add_argument("--param", help="the address of parameters", type=str, default='./datasets/Flickr/NodeFeaturesUnion.dic')
     parser.add_argument("--edge_feature", help="the address of edge features", type=str, default='./datasets/Flickr/EdgeFeaturesUnion.dic')
     parser.add_argument("--dataset", help="the address of dataset(Choose from 'default', 'NetHEPT', or 'Flickr' as default)", type=str, default='Flickr-Random')
-    parser.add_argument("--iter",  type=int, default=1000)
+    parser.add_argument("--iter",  type=int, default=3000)
     parser.add_argument("--save_address",  type=str, default='./SimulationResults')
-    
+    parser.add_argument("--seed", help="random seed", type=int, default=0)
+
     args = parser.parse_args()
     graph_address = args.graph
     prob_address = args.prob
@@ -240,6 +256,7 @@ if __name__ == '__main__':
     save_address = args.save_address
 
     oracle = ShortestPath
+    np.random.seed(args.seed)
 
     start = time.time()
 
@@ -247,6 +264,7 @@ if __name__ == '__main__':
     prob = pickle.load(open(prob_address, 'rb'), encoding='latin1')
     # parameter = pickle.load(open(param_address, 'rb'), encoding='latin1')
     # feature_dic = pickle.load(open(edge_feature_address, 'rb'), encoding='latin1')
+    G = clean_to_weakly_connected(G)
 
     P = nx.DiGraph()
     id_node = {}
@@ -262,32 +280,26 @@ if __name__ == '__main__':
         v_id = id_node[v]
         # print(u_id,v_id,prob[(u,v)])
         P.add_edge(u_id, v_id, weight=prob[(u,v)])
-    print("target",P[83][86],P[86][1937])
-    print("shortest",P[83][85],P[85][1937])
-
-    # print(P[1304][318])
-
 
     print('nodes:', len(G.nodes()))
     print('edges:', len(G.edges()))
     print('Done with Loading Feature')
     print('Graph build time:', time.time() - start)
+    num_exp = 10
+    sum_attackable = 0
+    for seed in range(100,100+num_exp):
+        np.random.rand(seed)
+
+        simExperiment = simulateOnlineData(P, oracle, iterations, dataset)
+
+        Target, oracle_params = TargetPath_Unattackable(P) #TargetPath_RandomWeight(P)
+
+        # nx.shortest_path(P,oracle_params["start"],oracle_params["end"],weight="weight")
+        algorithms = {}
+        algorithms['CLCB'] = LCB1Algorithm(P,oracle)
+        algorithms['CLCB_Attack'] = LCB1AlgorithmAttack(P, oracle, Target)
+
+        attackable = simExperiment.runAlgorithms(algorithms, oracle_params)
+        sum_attackable += attackable
+        print("attackable", attackable, sum_attackable/(seed-100+1))
         
-    simExperiment = simulateOnlineData(P, oracle, iterations, dataset)
-
-    Target, oracle_params = TargetPath_Random(P)
-    # Target =  [1458, 1461, 1460]
-    # oracle_params = {"start":1458, "end":1460}
-    # print(P[1458][1460])
-    # print(P[1458][1461],P[1461][1460])
-    # print(P[1449][1566])
-    # nx.shortest_path(P,oracle_params["start"],oracle_params["end"],weight="weight")
-    algorithms = {}
-    algorithms['CLCB'] = LCB1Algorithm(P,oracle)
-    algorithms['CLCB_Attack'] = LCB1AlgorithmAttack(P, oracle, Target)
-    # algorithms['egreedy_0.1'] = eGreedyAlgorithm(G, seed_size, oracle, 0.1)
-    # algorithms['LinUCB'] = N_LinUCBAlgorithm(G, P, parameter, seed_size, oracle, dimension*dimension, alpha_1, lambda_, feature_dic, 1)
-    # algorithms['OurAlgorithm'] = MFAlgorithm(G, P, parameter, seed_size, oracle, dimension)
-    # nx.shortest_path(algorithms['CLCB'].currentP,oracle_params["start"],oracle_params["end"],weight="weight")
-
-    simExperiment.runAlgorithms(algorithms, oracle_params)

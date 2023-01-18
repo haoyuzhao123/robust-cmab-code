@@ -11,7 +11,7 @@ def ShortestPath(P, params):
     # print(nx.shortest_path_length(P,params["start"],params["end"],weight="weight"))
     return path_list
 
-def TargetPath_Random(P):
+def TargetPath_RandomWalk(P):
     ''' 
     return the target path list of attack algorithm
     '''
@@ -58,6 +58,79 @@ def TargetPath_Random(P):
     print("shortest path with weights", shortest_path)
     print("start",s,"end",t)
     return target, {"start": s, "end": t}
+
+
+def TargetPath_RandomWeight(P):
+    ''' 
+    return the random target path list (u,v) of attack algorithm
+    '''
+    tempP = nx.DiGraph()
+    for (u,v) in P.edges():
+        tempP.add_edge(u, v, random_weight=np.random.rand())
+    for _ in range(10000):
+        s = np.random.randint(P.number_of_nodes())
+        path_from_s = nx.shortest_path(P, source = s)
+        for i in range(5):
+            t = np.random.randint(P.number_of_nodes())
+            if t in path_from_s:
+                opt = path_from_s[t]
+                path = nx.shortest_path(tempP, s, t, weight="random_weight")
+                if path != opt:
+                    return reshape_path_opt(P, path,opt, s, t)
+
+    raise ValueError("can not find target path")
+
+def TargetPath_RandomTri(P):
+    ''' 
+    return the random target path list (u,v) of attack algorithm
+    '''
+    tri_list=[]
+    for (u,v) in P.edges():
+        for k in P.nodes():
+            if u!=k and v!=k:
+                if P.has_edge(u,k) and P.has_edge(k,v):
+                    tri_list.append((u,k,v))
+
+    print("number of triangles",len(tri_list))
+    # for (u,k,v) in tri_list:
+    #     for pre_u in u.predecessor
+    for _ in range(10000):
+        s = np.random.randint(P.number_of_nodes())
+        path_from_s = nx.shortest_path(P, source = s)
+        for i in range(5):
+            t = np.random.randint(P.number_of_nodes())
+            if t in path_from_s:
+                opt = path_from_s[t]
+                path = nx.shortest_path(tempP, s, t, weight="random_weight")
+                if path != opt:
+                    return reshape_path_opt(P, path,opt, s, t)
+
+    raise ValueError("can not find target path")
+
+def reshape_path_opt(P, path,opt,s, t):
+    opt_weight = 0
+    target_weight = 0
+    target = []
+    for i in range(len(path)):
+        if i==0:
+            u = path[i]
+            continue
+        v = path[i]
+        target.append((u,v))
+        target_weight+=P[u][v]["weight"]
+        u = v
+    for i in range(len(opt)):
+        if i==0:
+            u = opt[i]
+            continue
+        v = opt[i]
+        opt_weight+=P[u][v]["weight"]
+        u = v
+    print("Target Path with weights", target_weight, path)
+    print("shortest path with weights", opt_weight, opt)
+    print("start",s,"end",t)
+    return target, {"start": s, "end": t}
+
     
 def TargetPath_Unattackable(P):
     ''' 
@@ -98,19 +171,18 @@ def TargetPath_Unattackable(P):
                 # shortest_sum = nx.shortest_path_length(P, s, t,weight="weight")
                 shortest_path = nx.shortest_path(tempG, s, t,weight="weight")
                 shortest_sm = nx.shortest_path_length(tempG, s, t,weight="weight")
-                if sm-shortest_sm > 2:
-                    print(sm, shortest_sm, sm - shortest_sm)
-                if sm-shortest_sm > 3:
+                # print(sm, shortest_sm, sm - shortest_sm)
+                if sm-shortest_sm > 0.5:
+                    print(sm - shortest_sm, sm, shortest_sm, path_list, shortest_path)
+                if sm-shortest_sm >= 0.5 and len(shortest_path)>2:
                     break
         t = path_list[-1]
         # print(path_list)
         # print(tempG[s][path_list[1]])
         # print(tempG[path_list[1]][t])
         shortest_path = nx.shortest_path(tempG, s, t,weight="weight")
-        shortest_sm = nx.shortest_path_length(tempG, s, t,weight="weight")
-        if sm-shortest_sm > 2:
-            print(sm, shortest_sm, sm - shortest_sm)      
-        if sm-shortest_sm > 3:
+        shortest_sm = nx.shortest_path_length(tempG, s, t,weight="weight")   
+        if sm-shortest_sm >= 0.5 and len(shortest_path)>2:
             break
     
     target = []
