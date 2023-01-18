@@ -51,7 +51,6 @@ def find_min_edge_on_path(tree, u, v):
             ru,rv = u,v
     return ru,rv
 
-
 def find_max_edge_on_path(tree, u, v):
     path = nx.shortest_path(tree,u,v,weight='weight')
     if len(path)<2:
@@ -135,14 +134,14 @@ def TargetST_second(P):
     generate the second minimal ST.
     '''
     opt_tree = nx.minimum_spanning_tree(P, weight="weight")
-    gap = 0 
+    gap = 1e10
     record = None
     print(P.number_of_edges(),opt_tree.number_of_edges())
     for (u,v) in P.edges():
         if opt_tree.has_edge(u,v) == False and u!=v:
             max_u,max_v = find_max_edge_on_path(opt_tree,u,v)    
             # print(P[u][v]['weight'] - P[min_u][min_v]['weight'])
-            if P[u][v]['weight'] - P[max_u][max_v]['weight'] > gap:
+            if P[u][v]['weight'] - P[max_u][max_v]['weight'] < gap:
                 gap = P[u][v]['weight'] - P[max_u][max_v]['weight']
                 record = (u,v,max_u,max_v)
     target_tree = opt_tree.copy()
