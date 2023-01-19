@@ -9,13 +9,13 @@ import matplotlib.pyplot as plt
 # from conf import *
 from Tool.utilFunc import *
 
-from BanditAlg.CLCB_SP import LCB1Algorithm 
-from BanditAlg.CLCB_SP_Attack import LCB1AlgorithmAttack
+from BanditAlg.CLCB import LCB1Algorithm 
+from BanditAlg.CLCB_Attack import LCB1AlgorithmAttack
 # from BanditAlg.BanditAlgorithms_MF import MFAlgorithm
 # from BanditAlg.BanditAlgorithms_LinUCB import N_LinUCBAlgorithm
 # from IC.IC import runICmodel_n, runICmodel_single_step
 # from IC.runIAC  import weightedEp, runIAC, runIACmodel, randomEp, uniformEp
-from Oracle.ST import SpanningTree,  TargetST_Unattackable, TargetST_Attackable, TargetST_Random
+from Oracle.ST import SpanningTree,  TargetST_Unattackable, TargetST_Attackable, TargetST_Random, TargetST_second
 def clean_to_connected(P):
     comp_gen = nx.connected_components(P)
     max_comp = []
@@ -75,12 +75,20 @@ class simulateOnlineData:
                 alg.updateParameters(live_edges, iter_)
 
                 self.AlgReward[alg_name].append(total_cost)
-                if iter_ % 100 == 0:
+                if iter_ % 200 == 0:
                     print(iter_, alg_name, total_cost)
 
             self.resultRecord(iter_)
 
         self.showResult()
+        attack_algo = 'CLCB_Attack'
+        num_targetarm_played = algorithms[attack_algo].num_targetarm_played
+        final_length = 500
+        percent = num_targetarm_played[-1]/len(num_targetarm_played)
+        if len(num_targetarm_played) >final_length:
+            percent = (num_targetarm_played[-1]-num_targetarm_played[-final_length-1])/ final_length
+        print(percent)
+        return percent > 0.95
 
     def resultRecord(self, iter_=None):
         # if initialize
@@ -230,7 +238,7 @@ if __name__ == '__main__':
     parser.add_argument("--edge_feature", help="the address of edge features", type=str, default='./datasets/Flickr/EdgeFeaturesUnion.dic')
     parser.add_argument("--dataset", help="the address of dataset(Choose from 'default', 'NetHEPT', or 'Flickr' as default)", type=str, default='Flickr-Random')
     parser.add_argument("--seed", help="random seed", type=int, default=0)
-    parser.add_argument("--iter",  type=int, default=10000)
+    parser.add_argument("--iter",  type=int, default=3000)
     parser.add_argument("--save_address",  type=str, default='./STSimulationResults')
     
     args = parser.parse_args()
@@ -259,13 +267,11 @@ if __name__ == '__main__':
     nodes = 0
     for (u,v) in G.edges():
         if u not in id_node:
-            if nodes < 10000:
-                nodes += 1
+            nodes += 1
             id_node[u] = nodes
         u_id = id_node[u]
         if v not in id_node:
-            if nodes < 10000:
-                nodes += 1
+            nodes += 1
             id_node[v] = nodes
         v_id = id_node[v]
         # print(u_id,v_id,prob[(u,v)])
@@ -276,15 +282,20 @@ if __name__ == '__main__':
     print('Done with Loading Feature')
     print('Graph build time:', time.time() - start)
     
-        
-    simExperiment = simulateOnlineData(P, None, oracle, iterations, dataset)
+    num_exp = 100
+    sum_attackable = 0
+    for seed in range(100,100+num_exp):
+        np.random.rand(seed)
+        simExperiment = simulateOnlineData(P, None, oracle, iterations, dataset)
 
-    #In Spanning Tree problem, there is no params. It is left to make the codes easy to be united. 
-    Target, oracle_params = TargetST_Unattackable(P)
+        #In Spanning Tree problem, there is no params. It is left to make the codes easy to be united. 
+        Target, oracle_params = TargetST_Random(P)
 
-    algorithms = {}
-    algorithms['CLCB'] = LCB1Algorithm(P,oracle)
-    algorithms['CLCB_Attack'] = LCB1AlgorithmAttack(P, oracle, Target)
+        algorithms = {}
+        algorithms['CLCB'] = LCB1Algorithm(P,oracle)
+        algorithms['CLCB_Attack'] = LCB1AlgorithmAttack(P, oracle, Target)
 
-    simExperiment.runAlgorithms(algorithms, oracle_params)
+        attackable = simExperiment.runAlgorithms(algorithms, oracle_params)
+        sum_attackable += attackable
+        print("attackable", attackable, sum_attackable/(seed-100+1))
 

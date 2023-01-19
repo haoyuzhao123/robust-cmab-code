@@ -289,7 +289,6 @@ if __name__ == '__main__':
     sum_attackable = 0
     for seed in range(100,100+num_exp):
         np.random.rand(seed)
-
         simExperiment = simulateOnlineData(P, oracle, iterations, dataset)
 
         Target, oracle_params = TargetPath_Unattackable(P) #TargetPath_RandomWeight(P)
