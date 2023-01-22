@@ -5,6 +5,7 @@ import matplotlib.colors as mcolors
 import os
 import argparse
 
+plt.rcParams.update({'font.size': 12})
 
 parser = argparse.ArgumentParser()
 parser.add_argument('exp_name', type=str) ## CascadeBandit/SetCover/
@@ -69,6 +70,7 @@ plt.xlabel('Iterations')
 plt.ylabel(y_label)
 plt.legend(loc="upper left")
 plt.title(title)
+plt.tight_layout()
 
 print("saving")
 plt.savefig(os.path.join('./SimulationResults', args.exp_name, args.exp_type + '.pdf'))
