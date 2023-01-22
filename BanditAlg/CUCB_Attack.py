@@ -18,9 +18,9 @@ class ArmBaseStruct(object):
 class UCB1Struct(ArmBaseStruct):    
     def getProb(self, allNumPlayed):
         if self.numPlayed==0:
-            return 0
+            return float('inf')
         else:
-            p = self.totalReward / float(self.numPlayed) + 0.1*np.sqrt(3*np.log(allNumPlayed) / (2.0 * self.numPlayed))
+            p = self.totalReward / float(self.numPlayed) + 1e-2*np.sqrt(3*np.log(allNumPlayed) / (2.0 * self.numPlayed))
             if p > self.p_max:
                 p = self.p_max
                 # print 'p_max'
@@ -40,7 +40,7 @@ class UCB1AlgorithmAttack:
         self.currentP =nx.DiGraph()
         for (u,v) in self.G.edges():
             self.arms[(u,v)] = UCB1Struct((u,v))
-            self.currentP.add_edge(u,v, weight=0)
+            self.currentP.add_edge(u,v, weight=float('inf'))
         self.list_loss = []
         self.TotalPlayCounter = 0
 
@@ -49,10 +49,16 @@ class UCB1AlgorithmAttack:
         self.totalCost = []
         self.cost = []
         self.num_basearm_played = []
+
         
     def decide(self):
         self.TotalPlayCounter +=1
         S = self.oracle(self.G, self.seed_size, self.currentP)
+        # print(self.target_arms)
+        # print(S)
+        
+        print(len(list(set(S).difference(set(self.target_arms)))))
+
         return S       
 
     def numTargetPlayed(self, S):
@@ -77,23 +83,29 @@ class UCB1AlgorithmAttack:
         loss_out = 0
         loss_in = 0
         cost = 0
-        for u in live_nodes:
+        # print(live_edges)
+        for u in S:
             for (u, v) in self.G.edges(u):
+                # if u == 509912501:
+                #     print(live_edges)
+                #     print("Here")
                 if (u,v) in live_edges:
-                    if (u in self.target_arms and u in S) or (v in self.target_arms and v in S): ## because of biderectionality
-                        self.arms[(u, v)].updateParameters(reward=live_edges[(u,v)])
+                    if u in self.target_arms:
+                        self.arms[(u, v)].updateParameters(reward=1)
                     else:
                         self.arms[(u, v)].updateParameters(reward=0)
                         cost += live_edges[(u,v)]
                 else:
                     self.arms[(u, v)].updateParameters(reward=0)
+                
                 #update current P
-                #print self.TotalPlayCounter
                 self.currentP[u][v]['weight'] = self.arms[(u,v)].getProb(self.TotalPlayCounter) 
                 estimateP = self.currentP[u][v]['weight']
                 trueP = self.trueP[u][v]['weight']
                 loss_p += np.abs(estimateP-trueP)
                 count += 1
+
+        # print("-------------")
         self.list_loss.append([loss_p/count])
         if len(self.totalCost) == 0:
             self.totalCost = [cost]

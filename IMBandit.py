@@ -16,11 +16,29 @@ from BanditAlg.CUCB_Attack import UCB1AlgorithmAttack
 from IC.IC import runICmodel_n, runICmodel_single_step
 # from IC.runIAC  import weightedEp, runIAC, runIACmodel, randomEp, uniformEp
 
+def clean_to_weakly_connected(P):
+    comp_gen = nx.weakly_connected_components(P)
+    max_comp = []
+    s = 0
+    num = 0
+    for comp in comp_gen:
+        if len(comp)>len(max_comp):
+            max_comp  = comp
+        # print(len(comp))
+        s += len(comp)
+        num += 1
+    print("forests size",s, num)
+    cleaned_G = G.subgraph(max_comp)
+    comp_gen = nx.weakly_connected_components(cleaned_G)
+    for comp in comp_gen:
+        print("final comp",len(comp))
+    return cleaned_G
+
+
 class simulateOnlineData:
-    def __init__(self, G, P, randP, oracle, seed_size, iterations, dataset):
+    def __init__(self, G, P, oracle, seed_size, iterations, dataset):
         self.G = G
         self.TrueP = P
-        self.TruerandP = randP
         self.seed_size = seed_size
         self.oracle = oracle
         self.iterations = iterations
@@ -38,25 +56,21 @@ class simulateOnlineData:
             self.BatchCumlateReward[alg_name] = []
 
         self.resultRecord()
-        optS = self.oracle(self.G, self.seed_size, self.TrueP)
-        optrandS = self.oracle(self.G, self.seed_size, self.TruerandP)
+        # optS = self.oracle(self.G, self.seed_size, self.TrueP)
+        # optrandS = self.oracle(self.G, self.seed_size, self.TruerandP)
 
         for iter_ in range(self.iterations):
-            optimal_reward_S, live_nodes, live_edges = runICmodel_single_step(G, optS, self.TrueP)
-            optimal_reward_randS, live_nodes, live_edges = runICmodel_single_step(G, optrandS, self.TruerandP)
+            # optimal_reward_S, live_nodes, live_edges, _ = runICmodel_single_step(G, optS, self.TrueP)
+            # optimal_reward_randS, live_nodes, live_edges, _ = runICmodel_single_step(G, optrandS, self.TruerandP)
 
-            self.result_oracle.append(optimal_reward_S)
-            self.result_oracle_rand.append(optimal_reward_randS)
+            # self.result_oracle.append(optimal_reward_S)
+            # self.result_oracle_rand.append(optimal_reward_randS)
 
-            print('oracle', optimal_reward_S)
+            # print('oracle', optimal_reward_S)
             
             for alg_name, alg in list(algorithms.items()): 
                 S = alg.decide() 
-
-                if 'Random' not in alg_name:
-                    reward, live_nodes, live_edges = runICmodel_single_step(G, S, self.TrueP)
-                else:
-                    reward, live_nodes, live_edges = runICmodel_single_step(G, S, self.TruerandP)
+                reward, live_nodes, live_edges, _ = runICmodel_single_step(G, S, self.TrueP)
 
                 alg.updateParameters(S, live_nodes, live_edges, iter_)
 
@@ -218,32 +232,91 @@ if __name__ == '__main__':
     parameter = pickle.load(open(param_address, 'rb'), encoding='latin1')
     feature_dic = pickle.load(open(edge_feature_address, 'rb'), encoding='latin1')
 
+    G = clean_to_weakly_connected(G)
+
     P = nx.DiGraph()
-    randP = nx.DiGraph()
-    np.random.seed(0)
+    # randP = nx.DiGraph()
+
+    np.random.seed(args.exp_num)
+    random.seed(args.exp_num)
+
     for (u,v) in G.edges():
         P.add_edge(u, v, weight=prob[(u,v)])
-        randP.add_edge(u, v, weight=np.random.rand())
+        # randP.add_edge(u, v, weight=np.random.rand())
 
     print('nodes:', len(G.nodes()))
     print('edges:', len(G.edges()))
     print('Done with Loading Feature')
     print('Graph build time:', time.time() - start)
     
-    random.seed(0)
-    target_arms_index = random.sample(range(len(G.nodes())), seed_size)
-    
-    target_arms = []
-    for i in target_arms_index:
-        target_arms.append(G.nodes()[i])
+    n = {}
+    n_05 = {}
 
-    simExperiment = simulateOnlineData(G, P, randP, oracle, seed_size, iterations, dataset)
+    # n_rand = {}
+    for u in G.nodes():
+        for v in G[u]:
+            try:
+                n[u] += P[u][v]['weight']/len(G[u])
+                # n_rand[u] += randP[u][v]['weight']/len(G[u])
+            except:
+                n[u] = P[u][v]['weight']/len(G[u])
+                # n_rand[u] = randP[u][v]['weight']/len(G[u])
+
+    for u in n.keys():
+        if n[u] >= 0.5:
+            n_05[u] = n[u]
+
+    target_arms = list(dict(sorted(n.items(), key=lambda x: x[1], reverse=True)).keys())[seed_size:2*seed_size]
+
+    target_arms_rand = random.sample(list(n_05.keys()), seed_size)
+
+    # target_arms_rand = oracle(G, seed_size, P)
+
+    # new_node = G.nodes()[random.sample(range(len(G.nodes())), 1)[0]]
+    # target_arms_rand[random.sample(range(seed_size), 1)[0]] = new_node
+
+    # random.seed(1)
+
+    # target_arms_index = random.sample(range(len(G.nodes())), seed_size)
+
+
+    # cnt = 1
+    # target_arms = [G.nodes()[0]]
+    # while cnt < seed_size:
+    #     target_arms_index = random.sample(range(len(G.nodes())), 1)[0]
+    #     f = 0
+    #     for t in target_arms:
+    #         if G.nodes()[target_arms_index] in G.neighbors(t):
+    #             f += 1
+    #     if f == 0:
+    #         target_arms.append(G.nodes()[target_arms_index])
+    #         cnt += 1
+
+
+
+    # target_arms = []
+    # for i in target_arms_index:
+    #     target_arms.append(G.nodes()[i])
+
+
+    # for v in target_arms:
+    #     print("N", G.neighbors(v))
+    #     for u in G[v]:
+    #         print(v, u, P[v][u]['weight'])
+
+    # print("-------")
+
+    # for v in target_arms_rand:
+    #     for u in G[v]:
+    #         print(v, u, P[v][u]['weight'])
+
+    # exit()
+
+    simExperiment = simulateOnlineData(G, P, oracle, seed_size, iterations, dataset)
 
     algorithms = {}
     algorithms['CUCB'] = UCB1Algorithm(G, P, parameter, seed_size, oracle)
     algorithms['CUCB_Attack'] = UCB1AlgorithmAttack(G, P, parameter, seed_size, target_arms, oracle)
-
-    algorithms['Randomized CUCB'] = UCB1Algorithm(G, randP, parameter, seed_size, oracle)
-    algorithms['Randomized CUCB_Attack'] = UCB1AlgorithmAttack(G, randP, parameter, seed_size, target_arms, oracle)
+    algorithms['Randomized CUCB_Attack'] = UCB1AlgorithmAttack(G, P, parameter, seed_size, target_arms_rand, oracle)
 
     simExperiment.runAlgorithms(algorithms)

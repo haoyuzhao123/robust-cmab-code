@@ -37,12 +37,20 @@ while os.path.exists(os.path.join('./SimulationResults', args.exp_name, args.exp
     exp.append(data)
     exp_num += 1
 
+df = pd.concat(exp, axis=0, ignore_index=True)[::-1]
 
-df = pd.concat(exp, axis=0, ignore_index=True)
+cols = df.columns.tolist()
+cols = cols[::-1]
+df = df[cols]
+
 print(df)
 
 grouped_df_mean = df.groupby(["Time(Iteration)"]).mean()
 grouped_df_std = df.groupby(["Time(Iteration)"]).std()
+
+quant_num = 0.3
+grouped_df_quantile_min = df.groupby(["Time(Iteration)"]).quantile(quant_num)
+grouped_df_quantile_max = df.groupby(["Time(Iteration)"]).quantile(1-quant_num)
 
 
 colors = list(mcolors.TABLEAU_COLORS.keys())
@@ -50,7 +58,11 @@ cols = list(grouped_df_mean.columns)
 
 for c in range(len(cols)):
     plt.plot(range(grouped_df_mean.shape[0]), grouped_df_mean[cols[c]], label=cols[c], color=colors[c])
-    plt.fill_between(grouped_df_std.index, grouped_df_mean[cols[c]] - grouped_df_std[cols[c]], grouped_df_mean[cols[c]] + grouped_df_std[cols[c]], color=colors[c], alpha=0.2)
+    # plt.fill_between(grouped_df_std.index, grouped_df_quantile_max[cols[c]], grouped_df_quantile_min[cols[c]], color=colors[c], alpha=0.2)
+
+    plt.fill_between(grouped_df_std.index, (grouped_df_mean[cols[c]] - grouped_df_std[cols[c]]).clip(0, None), grouped_df_mean[cols[c]] + grouped_df_std[cols[c]], color=colors[c], alpha=0.2)
+
+    
 
 print("plotting")
 plt.xlabel('Iterations')
@@ -59,6 +71,6 @@ plt.legend(loc="upper left")
 plt.title(title)
 
 print("saving")
-plt.savefig(os.path.join('./SimulationResults', args.exp_name, args.exp_type + '.png'))
+plt.savefig(os.path.join('./SimulationResults', args.exp_name, args.exp_type + '.pdf'))
 # plt.show()
 

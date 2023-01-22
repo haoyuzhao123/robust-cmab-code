@@ -66,22 +66,22 @@ def runICmodel_single_step (G, v_added, P, T=[]):
     E = {}
     
     for v_new in S:
-        for v in G[v_new]: # for neighbors of a selected node                
-            # w = G[T[i]][v]['weight'] # count the number of edges between two nodes (weight is ther weight of the edge between the two nodes, always 1)
+        p = 0
+        for v in G[v_new]: # for neighbors of a selected node    
+            p += P[v_new][v]['weight']
             if random() <= P[v_new][v]['weight']: # if at least one of edges propagate influence
-                # print T[i], 'influences', v
                 if v not in T_new: # if this node wasn't previously explored
-                    # S.append(v) ## dont append to S so that this node is not extended
                     T_new.append(v)
                 if (v_new, v) in E:
                     E[(v_new, v)] += 1
                 else:
                     E[(v_new, v)] = 1
+        p /= len(G[v_new])
 
     reward = len(list(set(T_new).difference(set(T))))
     T_new = list(set(T_new).union(set(T)))
 
-    return reward, T_new, E
+    return reward, T_new, E, p
 
 
 
