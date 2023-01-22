@@ -46,7 +46,7 @@ grouped_df_std = df.groupby(["Time(Iteration)"]).std()
 quant_num = 0.2
 grouped_df_quantile_min = df.groupby(["Time(Iteration)"]).quantile(quant_num)
 grouped_df_quantile_max = df.groupby(["Time(Iteration)"]).quantile(1-quant_num)
-# import ipdb;ipdb.set_trace()
+
 colors = list(mcolors.TABLEAU_COLORS.keys())
 cols = list(grouped_df_mean.columns)
 
@@ -80,9 +80,9 @@ if os.path.exists(os.path.join('./SimulationResults', args.exp_name, args.exp_ty
     cols = list(grouped_df_mean.columns)
 
     for c in range(len(cols)):
-        plt.plot(range(grouped_df_mean.shape[0]), grouped_df_mean[cols[c]], label='Second Best ST Target', color=colors[1])
+        plt.plot(range(grouped_df_mean.shape[0])[:3000], grouped_df_mean[cols[c]][:3000], label='Second Best ST Target', color=colors[1])
         # plt.fill_between(grouped_df_std.index, grouped_df_mean[cols[c]] - grouped_df_std[cols[c]], grouped_df_mean[cols[c]] + grouped_df_std[cols[c]], color=colors[1], alpha=0.2)
-        plt.fill_between(grouped_df_std.index, grouped_df_quantile_min[cols[c]], grouped_df_quantile_max[cols[c]], color=colors[1], alpha=0.2)
+        plt.fill_between(grouped_df_std.index[:3000], grouped_df_quantile_min[cols[c]][:3000], grouped_df_quantile_max[cols[c]][:3000], color=colors[1], alpha=0.2)
 
 target = "spchosen"
 exp_num = 0
@@ -118,5 +118,5 @@ plt.legend(loc="upper left")
 plt.title(title)
 
 print("saving")
-plt.savefig(os.path.join('./SimulationResults', args.exp_name, args.exp_type + '.png'))
+plt.savefig(os.path.join('./SimulationResults', args.exp_name, args.exp_type + '.pdf'))
 # plt.show()

@@ -53,7 +53,7 @@ def shortest_path_env_step(P, S):
     return total_cost, live_edges
 
 class simulateOnlineData:
-    def __init__(self,  P, oracle, iterations, dataset):
+    def __init__(self,  P, oracle, iterations, dataset, random_seed, target_type):
         self.TrueP = P
         self.oracle = oracle
         self.iterations = iterations
@@ -61,6 +61,8 @@ class simulateOnlineData:
         self.startTime = datetime.datetime.now()
         self.BatchCumlateReward = {}
         self.AlgReward = {}
+        self.seed = random_seed
+        self.target_type = target_type
 
     def runAlgorithms(self, algorithms, oracle_params):
         self.tim_ = []
@@ -72,7 +74,6 @@ class simulateOnlineData:
 
         for iter_ in range(self.iterations):
 
-            
             for alg_name, alg in list(algorithms.items()): 
                 Superarm = alg.decide(oracle_params) 
                 total_cost, live_edges = shortest_path_env_step(P, Superarm)
@@ -95,6 +96,13 @@ class simulateOnlineData:
         return percent > 0.95
 
     def resultRecord(self, iter_=None):
+        if target_type == "spchosen":
+            self.filenameWriteCost = os.path.join(save_address, 'Cost{}.csv'.format(target_type + str(self.seed)))
+            self.filenameTargetRate = os.path.join(save_address, 'Rate{}.csv'.format(target_type + str(self.seed)))
+        if target_type == "random":
+            self.filenameWriteCost = os.path.join(save_address, 'Cost{}.csv'.format(str(self.seed)))
+            self.filenameTargetRate = os.path.join(save_address, 'Rate{}.csv'.format(str(self.seed)))                
+
         # if initialize
         if iter_ is None:
             timeRun = self.startTime.strftime('_%m_%d_%H_%M_%S') 
@@ -104,6 +112,24 @@ class simulateOnlineData:
             with open(self.filenameWriteReward, 'w') as f:
                 f.write('Time(Iteration)')
                 f.write(',' + ','.join( [str(alg_name) for alg_name in algorithms.keys()]))
+                f.write('\n') 
+
+            with open(self.filenameWriteCost, 'w') as f:
+                f.write('Time(Iteration)')
+                l = []
+                for alg_name in algorithms.keys():
+                    if 'Attack' in alg_name:
+                        l.append(alg_name)
+                f.write(',' + ','.join(l))
+                f.write('\n') 
+
+            with open(self.filenameTargetRate, 'w') as f:
+                f.write('Time(Iteration)')
+                l = []
+                for alg_name in algorithms.keys():
+                    if 'Attack' in alg_name:
+                        l.append(alg_name)
+                f.write(',' + ','.join(l))
                 f.write('\n') 
         else:
             # if run in the experiment, save the results
@@ -115,23 +141,26 @@ class simulateOnlineData:
                 f.write(str(iter_))
                 f.write(',' + ','.join([str(self.BatchCumlateReward[alg_name][-1]) for alg_name in algorithms.keys()]))
                 f.write('\n')
+            
+            with open(self.filenameWriteCost, 'a+') as f:
+                f.write(str(iter_))
+                l = []
+                for alg_name in algorithms.keys():
+                    if 'Attack' in alg_name:
+                        l.append(str(algorithms[alg_name].totalCost[-1]))
+                f.write(',' + ','.join(l))
+                f.write('\n')
+
+            with open(self.filenameTargetRate, 'a+') as f:
+                f.write(str(iter_))
+                l = []
+                for alg_name in algorithms.keys():
+                    if 'Attack' in alg_name:
+                        l.append(str(algorithms[alg_name].num_targetarm_played[-1]))
+                f.write(',' + ','.join(l))
+                f.write('\n')
 
     def showResult(self):
-        # print('average Shortest Path Weights for oracle:', np.mean(self.result_oracle))
-        
-        # reward
-        # for alg_name in algorithms.keys():
-        #     f, axa = plt.subplots(1, sharex=True)
-        #     axa.plot(self.tim_, algorithms[alg_name].basearmestimate1, label = alg_name+"[83,86](target)")
-        #     axa.plot(self.tim_, algorithms[alg_name].basearmestimate2, label = alg_name+"[86,1937](target)")            
-        #     axa.plot(self.tim_, algorithms[alg_name].basearmestimate3, label = alg_name+"[83,85](shortest)")
-        #     axa.plot(self.tim_, algorithms[alg_name].basearmestimate4, label = alg_name+"[85,1937](shortest)")
-        #     axa.legend(loc='upper left',prop={'size':9})
-        #     axa.set_xlabel("Iteration")
-        #     axa.set_ylabel("LCB")
-        #     axa.set_title("LCB")
-        #     plt.savefig('./SimulationResults/basearms'+ alg_name+ str(self.startTime.strftime('_%m_%d_%H_%M'))+'.png')
-        #     plt.show()
 
         f, axa = plt.subplots(1, sharex=True)
         for alg_name in algorithms.keys():  
@@ -243,7 +272,7 @@ if __name__ == '__main__':
     parser.add_argument("--edge_feature", help="the address of edge features", type=str, default='./datasets/Flickr/EdgeFeaturesUnion.dic')
     parser.add_argument("--dataset", help="the address of dataset(Choose from 'default', 'NetHEPT', or 'Flickr' as default)", type=str, default='Flickr-Random')
     parser.add_argument("--iter",  type=int, default=3000)
-    parser.add_argument("--save_address",  type=str, default='./SimulationResults')
+    parser.add_argument("--save_address",  type=str, default='./SimulationResults/ShortestPath')
     parser.add_argument("--seed", help="random seed", type=int, default=0)
 
     args = parser.parse_args()
@@ -254,6 +283,9 @@ if __name__ == '__main__':
     dataset = args.dataset
     iterations = args.iter
     save_address = args.save_address
+
+    if not os.path.exists(save_address):
+        os.mkdir(save_address)
 
     oracle = ShortestPath
     np.random.seed(args.seed)
@@ -279,19 +311,30 @@ if __name__ == '__main__':
             id_node[v] = nodes
         v_id = id_node[v]
         # print(u_id,v_id,prob[(u,v)])
+        if P.has_edge(u_id,v_id):
+            raise ValueError
         P.add_edge(u_id, v_id, weight=prob[(u,v)])
 
     print('nodes:', len(G.nodes()))
     print('edges:', len(G.edges()))
     print('Done with Loading Feature')
     print('Graph build time:', time.time() - start)
-    num_exp = 10
-    sum_attackable = 0
-    for seed in range(100,100+num_exp):
-        np.random.rand(seed)
-        simExperiment = simulateOnlineData(P, oracle, iterations, dataset)
+    target_type = "random"
 
-        Target, oracle_params = TargetPath_Unattackable(P) #TargetPath_RandomWeight(P)
+    if target_type == "random":
+        num_exp = 100
+    if target_type == "spchosen":
+        num_exp = 10
+    sum_attackable = 0
+    for seed in range(0,num_exp):
+        print("round", seed)
+        np.random.rand(seed)
+        simExperiment = simulateOnlineData(P, oracle, iterations, dataset, seed, target_type)
+        
+        if target_type == "spchosen":
+            Target, oracle_params = TargetPath_Unattackable(P)
+        if target_type == "random":
+            Target, oracle_params = TargetPath_RandomWeight(P)
 
         # nx.shortest_path(P,oracle_params["start"],oracle_params["end"],weight="weight")
         algorithms = {}
@@ -300,5 +343,5 @@ if __name__ == '__main__':
 
         attackable = simExperiment.runAlgorithms(algorithms, oracle_params)
         sum_attackable += attackable
-        print("attackable", attackable, sum_attackable/(seed-100+1))
-        
+        print("attackable", attackable, sum_attackable/(seed+1))
+   

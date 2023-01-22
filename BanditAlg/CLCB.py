@@ -21,10 +21,9 @@ class LCB1Struct(ArmBaseStruct):
         if self.numPlayed==0:
             return 0
         else:
-            p = self.totalReward / float(self.numPlayed) - 0.1*np.sqrt(3*np.log(allNumPlayed) / (2.0 * self.numPlayed))
+            p = self.totalReward / float(self.numPlayed) - 0.01*np.sqrt(3*np.log(allNumPlayed) / (2.0 * self.numPlayed))
             if p > self.p_max:
                 p = self.p_max
-                # print 'p_max'
             if p < self.p_min:
                 p = self.p_min
             return p
@@ -46,10 +45,7 @@ class LCB1Algorithm:
             self.currentP.add_edge(u,v, weight=0)
         self.list_loss = []
         self.TotalPlayCounter = 0
-        # self.basearmestimate1 = []
-        # self.basearmestimate2 = []
-        # self.basearmestimate3 = []
-        # self.basearmestimate4 = []        
+   
     def decide(self, params):
         '''
         params for shortest path: a dictionary with keys "start" and "end"
@@ -78,10 +74,6 @@ class LCB1Algorithm:
             # loss_p += np.abs(estimateP-trueP)
             # count += 1
         self.list_loss.append([loss_p/count])
-        # self.basearmestimate1.append(self.currentP[83][86]['weight'])
-        # self.basearmestimate2.append(self.currentP[86][1937]['weight'])
-        # self.basearmestimate3.append(self.currentP[83][85]['weight'])
-        # self.basearmestimate4.append(self.currentP[85][1937]['weight'])
 
     def getLoss(self):
         return np.asarray(self.list_loss)

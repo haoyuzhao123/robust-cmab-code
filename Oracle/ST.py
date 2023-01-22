@@ -122,9 +122,13 @@ def TargetST_Random(P):
     for (u,v) in opt.edges():
         if path.has_edge(u,v):
             overlap += 1
+        else:
+            print("opt", u,v,P[u][v]["weight"])
         opt_weight += P[u][v]["weight"]
     for (u,v) in path.edges():
         target_weight += P[u][v]["weight"]
+        if opt.has_edge(u,v) == False:
+            print("target", u,v,P[u][v]["weight"])
     print("total edges", total, "overlap",overlap)
     print("opt weight",opt_weight,"target weight",target_weight)
     return path.edges(), {}
@@ -160,9 +164,13 @@ def TargetST_second(P):
     for (u,v) in opt_tree.edges():
         if target_tree.has_edge(u,v):
             overlap += 1
+        else:
+            print(u,v,P[u][v]["weight"])
         opt_weight += P[u][v]["weight"]
     for (u,v) in target_tree.edges():
         target_weight += P[u][v]["weight"]
+        if opt_tree.has_edge(u,v) == False:
+            print(u,v,P[u][v]["weight"])
     print("overlap",overlap)
     print("opt weight",opt_weight,"target weight",target_weight)
     return target_tree.edges(), {}

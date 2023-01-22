@@ -17,6 +17,7 @@ from BanditAlg.CLCB_Attack import LCB1AlgorithmAttack
 # from IC.runIAC  import weightedEp, runIAC, runIACmodel, randomEp, uniformEp
 from Oracle.ST import SpanningTree,  TargetST_Unattackable, TargetST_Attackable, TargetST_Random, TargetST_second
 def clean_to_connected(P):
+    print("connected graph, at start", len(P.nodes()), len(P.edges()))
     comp_gen = nx.connected_components(P)
     max_comp = []
     s = 0
@@ -29,10 +30,14 @@ def clean_to_connected(P):
         num += 1
     print("forests size",s, num)
     cleaned_G = G.subgraph(max_comp)
+    print("connected graph, cleaned_G", len(cleaned_G.nodes()), len(cleaned_G.edges()))
     comp_gen = nx.connected_components(cleaned_G)
+    # print("connected graph, comp_gen", len(comp_gen[0].nodes()), len(comp_gen[0].edges()))
+
     for comp in comp_gen:
         print("final comp",len(comp))
     return cleaned_G
+
 def ST_env_step(P, S):
     '''
     P: networkx Digraph
@@ -49,7 +54,7 @@ def ST_env_step(P, S):
     return total_cost, live_edges
 
 class simulateOnlineData:
-    def __init__(self, G, P, oracle, iterations, dataset):
+    def __init__(self, G, P, oracle, iterations, dataset, random_seed, target_type):
         self.G = G
         self.TrueP = P
         self.oracle = oracle
@@ -58,6 +63,8 @@ class simulateOnlineData:
         self.startTime = datetime.datetime.now()
         self.BatchCumlateReward = {}
         self.AlgReward = {}
+        self.seed = random_seed
+        self.target_type = target_type
 
     def runAlgorithms(self, algorithms, oracle_params):
         self.tim_ = []
@@ -91,6 +98,13 @@ class simulateOnlineData:
         return percent > 0.95
 
     def resultRecord(self, iter_=None):
+        if target_type == "second":
+            self.filenameWriteCost = os.path.join(save_address, 'Cost{}.csv'.format(target_type + str(self.seed)))
+            self.filenameTargetRate = os.path.join(save_address, 'Rate{}.csv'.format(target_type + str(self.seed)))
+        if target_type == "random":
+            self.filenameWriteCost = os.path.join(save_address, 'Cost{}.csv'.format(str(self.seed)))
+            self.filenameTargetRate = os.path.join(save_address, 'Rate{}.csv'.format(str(self.seed)))                
+
         # if initialize
         if iter_ is None:
             timeRun = self.startTime.strftime('_%m_%d_%H_%M_%S') 
@@ -100,6 +114,24 @@ class simulateOnlineData:
             with open(self.filenameWriteReward, 'w') as f:
                 f.write('Time(Iteration)')
                 f.write(',' + ','.join( [str(alg_name) for alg_name in algorithms.keys()]))
+                f.write('\n') 
+
+            with open(self.filenameWriteCost, 'w') as f:
+                f.write('Time(Iteration)')
+                l = []
+                for alg_name in algorithms.keys():
+                    if 'Attack' in alg_name:
+                        l.append(alg_name)
+                f.write(',' + ','.join(l))
+                f.write('\n') 
+
+            with open(self.filenameTargetRate, 'w') as f:
+                f.write('Time(Iteration)')
+                l = []
+                for alg_name in algorithms.keys():
+                    if 'Attack' in alg_name:
+                        l.append(alg_name)
+                f.write(',' + ','.join(l))
                 f.write('\n') 
         else:
             # if run in the experiment, save the results
@@ -111,22 +143,28 @@ class simulateOnlineData:
                 f.write(str(iter_))
                 f.write(',' + ','.join([str(self.BatchCumlateReward[alg_name][-1]) for alg_name in algorithms.keys()]))
                 f.write('\n')
+ 
+            with open(self.filenameWriteCost, 'a+') as f:
+                f.write(str(iter_))
+                l = []
+                for alg_name in algorithms.keys():
+                    if 'Attack' in alg_name:
+                        l.append(str(algorithms[alg_name].totalCost[-1]))
+                f.write(',' + ','.join(l))
+                f.write('\n')
+
+            with open(self.filenameTargetRate, 'a+') as f:
+                f.write(str(iter_))
+                l = []
+                for alg_name in algorithms.keys():
+                    if 'Attack' in alg_name:
+                        l.append(str(algorithms[alg_name].num_targetarm_played[-1]))
+                f.write(',' + ','.join(l))
+                f.write('\n')
+                
+
 
     def showResult(self):
-        
-        # # reward
-        # for alg_name in algorithms.keys():
-        #     f, axa = plt.subplots(1, sharex=True)
-        #     axa.plot(self.tim_, algorithms[alg_name].basearmestimate1, label = alg_name+"[83,86](target)")
-        #     axa.plot(self.tim_, algorithms[alg_name].basearmestimate2, label = alg_name+"[86,1937](target)")            
-        #     axa.plot(self.tim_, algorithms[alg_name].basearmestimate3, label = alg_name+"[83,85](shortest)")
-        #     axa.plot(self.tim_, algorithms[alg_name].basearmestimate4, label = alg_name+"[85,1937](shortest)")
-        #     axa.legend(loc='upper left',prop={'size':9})
-        #     axa.set_xlabel("Iteration")
-        #     axa.set_ylabel("LCB")
-        #     axa.set_title("LCB")
-        #     plt.savefig('./SimulationResults/basearms'+ alg_name+ str(self.startTime.strftime('_%m_%d_%H_%M'))+'.png')
-        #     plt.show()
 
         f, axa = plt.subplots(1, sharex=True)
         for alg_name in algorithms.keys():  
@@ -232,14 +270,14 @@ class simulateOnlineData:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--graph", help="the address of graph data", type=str, default='./datasets/Flickr/SubG50-100.G')
+    parser.add_argument("--graph", help="the address of graph data", type=str, default='./datasets/Flickr/G_Union.G')
     parser.add_argument("--prob", help="the address of probability", type=str, default='./datasets/Flickr/ProbUnion.dic')
     parser.add_argument("--param", help="the address of parameters", type=str, default='./datasets/Flickr/NodeFeaturesUnion.dic')
     parser.add_argument("--edge_feature", help="the address of edge features", type=str, default='./datasets/Flickr/EdgeFeaturesUnion.dic')
     parser.add_argument("--dataset", help="the address of dataset(Choose from 'default', 'NetHEPT', or 'Flickr' as default)", type=str, default='Flickr-Random')
     parser.add_argument("--seed", help="random seed", type=int, default=0)
     parser.add_argument("--iter",  type=int, default=3000)
-    parser.add_argument("--save_address",  type=str, default='./STSimulationResults')
+    parser.add_argument("--save_address",  type=str, default='./SimulationResults/SpanningTree')
     
     args = parser.parse_args()
     graph_address = args.graph
@@ -250,6 +288,9 @@ if __name__ == '__main__':
     iterations = args.iter
     save_address = args.save_address
 
+    if not os.path.exists(save_address):
+        os.mkdir(save_address)
+
     oracle = SpanningTree
     np.random.seed(args.seed)
 
@@ -259,9 +300,18 @@ if __name__ == '__main__':
     prob = pickle.load(open(prob_address, 'rb'), encoding='latin1')
     # parameter = pickle.load(open(param_address, 'rb'), encoding='latin1')
     # feature_dic = pickle.load(open(edge_feature_address, 'rb'), encoding='latin1')
+    # x = G.to_undirected()
+    # for (u,v) in G.edges():
+    #     if x.has_edge(u,v) == False:
+    #         print(u,v)
+    #     # print(G[u][v]['weight'],G[v][u]['weight'],x[u][v]['weight'], G[u][v]['weight'] + G[v][u]['weight'] == x[u][v]['weight'])
+    # for (u,v) in x.edges():
+    #     if G.has_edge(u,v) == False:
+    #         print(u,v)
+    #     if G.has_edge(v,u) == False:
+    #         print(v,u)
     G = G.to_undirected()
     G = clean_to_connected(G)
-
     P = nx.Graph()
     id_node = {}
     nodes = 0
@@ -275,21 +325,35 @@ if __name__ == '__main__':
             id_node[v] = nodes
         v_id = id_node[v]
         # print(u_id,v_id,prob[(u,v)])
-        P.add_edge(u_id, v_id, weight=prob[(u,v)])
+        if P.has_edge(u_id,v_id):
+            raise ValueError
+        if P.has_edge(v_id,u_id):
+            import ipdb; ipdb.set_trace()         
+        P.add_edge(u_id, v_id, weight=(prob[(u,v)]+prob[(v,u)])/2)
     # print(P.edges())
     print('nodes:', len(G.nodes()))
     print('edges:', len(G.edges()))
     print('Done with Loading Feature')
     print('Graph build time:', time.time() - start)
     
-    num_exp = 100
+    target_type = "second"
+
+    if target_type == "random":
+        num_exp = 10
+    if target_type == "second":
+        num_exp = 10
     sum_attackable = 0
-    for seed in range(100,100+num_exp):
+    for seed in range(0,num_exp):
+        print("Round", seed)
         np.random.rand(seed)
-        simExperiment = simulateOnlineData(P, None, oracle, iterations, dataset)
+        simExperiment = simulateOnlineData(P, None, oracle, iterations, dataset, seed, target_type)
 
         #In Spanning Tree problem, there is no params. It is left to make the codes easy to be united. 
-        Target, oracle_params = TargetST_Random(P)
+        if target_type == "second":
+            Target, oracle_params = TargetST_second(P)
+        if target_type == "random":
+            Target, oracle_params = TargetST_Random(P)
+
 
         algorithms = {}
         algorithms['CLCB'] = LCB1Algorithm(P,oracle)
@@ -297,5 +361,5 @@ if __name__ == '__main__':
 
         attackable = simExperiment.runAlgorithms(algorithms, oracle_params)
         sum_attackable += attackable
-        print("attackable", attackable, sum_attackable/(seed-100+1))
+        print("attackable", attackable, sum_attackable/(seed+1))
 
