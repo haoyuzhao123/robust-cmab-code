@@ -136,7 +136,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Regret")
         axa.set_title("Average Regret")
-        plt.savefig('./SimulationResults/CascadeBandit/AvgRegret' + str(args.exp_num)+'.png')
+        plt.savefig('./SimulationResults/CascadeBanditRandom/AvgRegret' + str(args.exp_num)+'.png')
         plt.show()
 
         # plot cost
@@ -148,7 +148,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Cost")
         axa.set_title("Cost")
-        plt.savefig('./SimulationResults/CascadeBandit/Cost' + str(args.exp_num)+'.png')
+        plt.savefig('./SimulationResults/CascadeBanditRandom/Cost' + str(args.exp_num)+'.png')
         plt.show()
 
         # plot cumulative cost
@@ -160,7 +160,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Cost")
         axa.set_title("Total Cost")
-        plt.savefig('./SimulationResults/CascadeBandit/TotalCost' + str(args.exp_num)+'.png')
+        plt.savefig('./SimulationResults/CascadeBanditRandom/TotalCost' + str(args.exp_num)+'.png')
         plt.show()
 
         # plot basearm played
@@ -172,7 +172,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Percentage")
         axa.set_title("Percentage of basearms in superarm played")
-        plt.savefig('./SimulationResults/CascadeBandit/BasearmPlayed' + str(args.exp_num)+'.png')
+        plt.savefig('./SimulationResults/CascadeBanditRandom/BasearmPlayed' + str(args.exp_num)+'.png')
         plt.show()
 
         # plot superarm played
@@ -184,7 +184,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Count")
         axa.set_title("Number of times target arm is played")
-        plt.savefig('./SimulationResults/CascadeBandit/TargetarmPlayed' + str(args.exp_num)+'.png')
+        plt.savefig('./SimulationResults/CascadeBanditRandom/TargetarmPlayed' + str(args.exp_num)+'.png')
         plt.show()
 
 
@@ -201,7 +201,7 @@ if __name__ == '__main__':
     
     else:
         if dataset == 'movielens-small':
-            data = genMovieLensDataset('./datasets/movielens/ml-latest-small/ratings.csv', seed_size)
+            data = genMovieLensDataset('./datasets/movielens/ml-latest-small/ratings.csv', seed_size, args.exp_num)
 
     simExperiment = simulateOnlineData(data, seed_size, iterations)
 

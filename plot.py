@@ -5,7 +5,18 @@ import matplotlib.colors as mcolors
 import os
 import argparse
 
-plt.rcParams.update({'font.size': 12})
+SMALL_SIZE = 8
+MEDIUM_SIZE = 12
+BIGGER_SIZE = 15
+
+plt.rc('axes', titlesize=BIGGER_SIZE)     # fontsize of the title
+plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+
+# plt.rc('font', size=BIGGER_SIZE)          # controls default text sizes
+# plt.rc('xtick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
+# plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=MEDIUM_SIZE)    # legend fontsize
+# plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 parser = argparse.ArgumentParser()
 parser.add_argument('exp_name', type=str) ## CascadeBandit/SetCover/
@@ -54,11 +65,16 @@ grouped_df_quantile_min = df.groupby(["Time(Iteration)"]).quantile(quant_num)
 grouped_df_quantile_max = df.groupby(["Time(Iteration)"]).quantile(1-quant_num)
 
 
+labels = {'Randomized CUCB_Attack': 'Random Target', 'CUCB_Attack': 'Fixed Target', 'CascadeUCB-V-Attack': 'CascadeUCB-V', 'CascadeUCB1-Attack': 'CascadeUCB1', 'CascadeKLUCB-Attack': 'CascadeKLUCB'}
+
+fig, ax = plt.subplots()
+ax.ticklabel_format(style='sci', useOffset=True, scilimits=(0, 0))
+
 colors = list(mcolors.TABLEAU_COLORS.keys())
 cols = list(grouped_df_mean.columns)
 
 for c in range(len(cols)):
-    plt.plot(range(grouped_df_mean.shape[0]), grouped_df_mean[cols[c]], label=cols[c], color=colors[c])
+    plt.plot(range(grouped_df_mean.shape[0]), grouped_df_mean[cols[c]], label=labels[cols[c]], color=colors[c])
     # plt.fill_between(grouped_df_std.index, grouped_df_quantile_max[cols[c]], grouped_df_quantile_min[cols[c]], color=colors[c], alpha=0.2)
 
     plt.fill_between(grouped_df_std.index, (grouped_df_mean[cols[c]] - grouped_df_std[cols[c]]).clip(0, None), grouped_df_mean[cols[c]] + grouped_df_std[cols[c]], color=colors[c], alpha=0.2)
@@ -70,7 +86,11 @@ plt.xlabel('Iterations')
 plt.ylabel(y_label)
 plt.legend(loc="upper left")
 plt.title(title)
-plt.tight_layout()
+
+t = ax.yaxis.get_offset_text()
+t.set_x(-0.05)
+
+# plt.tight_layout()
 
 print("saving")
 plt.savefig(os.path.join('./SimulationResults', args.exp_name, args.exp_type + '.pdf'))

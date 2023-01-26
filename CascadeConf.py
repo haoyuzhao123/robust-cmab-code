@@ -1,7 +1,7 @@
 import os
 
 
-save_address = "./SimulationResults/CascadeBandit"
+save_address = "./SimulationResults/CascadeBanditRandom"
 
 # dataset = 'synthetic'
 # num_arms = 100

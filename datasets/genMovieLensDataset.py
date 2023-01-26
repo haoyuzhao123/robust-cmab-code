@@ -10,7 +10,7 @@ import scipy.sparse as spp
 
 class genMovieLensDataset():
 
-    def __init__(self, data_dir, seed_size, d=20):
+    def __init__(self, data_dir, seed_size, exp_num, d=20):
 
         data = self.load_sparse_matrix(data_dir).toarray() ## make a matrix where 1 at (i, j) implies user i reviewd movie j
 
@@ -46,20 +46,35 @@ class genMovieLensDataset():
 
         means = phi_matrix @ theta
 
+        np.random.seed(exp_num)
+        random.seed(exp_num)
+
+        means = means.reshape(-1)
+        means = np.sort(means)[::-1]
+
+        # for i in means:
+        #     if i > 0.1:
+        #         print(i)
+        # exit()
+
         ## subsample best movies
-        means = np.sort(means, axis=0)[::-1]
-        means = means[:5000, :]
+        means = means[:5000]
         np.random.shuffle(means)
 
         self.w = {}
         self.num_arms = 0
 
         for i in range(means.shape[0]):
+            # print(means[i])
             self.num_arms += 1
-            self.w[i] = min(1, max(0, means[i][0] ))
+            self.w[i] = min(1, max(0, means[i] ))
 
         self.best_arms = list(dict(sorted(self.w.items(), key=lambda x: x[1], reverse=True)).keys())[:seed_size]
-        self.target_arms = list(dict(sorted(self.w.items(), key=lambda x: x[1], reverse=True)).keys())[seed_size:2*seed_size]
+
+        means_05 = np.where(means>0.1)[0].tolist()
+        self.target_arms = random.sample(means_05, seed_size)
+
+        # self.target_arms = list(dict(sorted(self.w.items(), key=lambda x: x[1], reverse=True)).keys())[seed_size:2*seed_size]
 
         self.click_prob = 1
         for i in self.best_arms:
