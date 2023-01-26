@@ -5,9 +5,9 @@ import matplotlib.colors as mcolors
 import os
 import argparse
 
-SMALL_SIZE = 18
-MEDIUM_SIZE = 15
-BIGGER_SIZE = 18
+# SMALL_SIZE = 18
+# MEDIUM_SIZE = 15
+BIGGER_SIZE = 20
 
 plt.rc('axes', titlesize=BIGGER_SIZE)     # fontsize of the title
 plt.rc('axes', labelsize=BIGGER_SIZE)    # fontsize of the x and y labels
@@ -41,7 +41,7 @@ if args.exp_type == 'Cost':
 
 if args.exp_type == 'Rate':
     y_label = 'Count'
-    title = "Number of times Target Arm is Played"
+    title = "Target Arm Trigger Rate"
 
 exp_num = 0
 
