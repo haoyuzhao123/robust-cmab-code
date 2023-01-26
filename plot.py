@@ -40,7 +40,7 @@ if args.exp_type == 'Cost':
 
 if args.exp_type == 'Rate':
     y_label = 'Count'
-    title = "Number of Target Arm Played Times"
+    title = "Target Arm Pulls"
 
 # plot random exp
 exp_num = 0
@@ -134,9 +134,7 @@ if args.exp_name == "SpanningTree":
     plt.legend(loc="lower right")
 else:
     plt.legend(loc="upper left")
-if args.exp_type == 'Rate': 
-    plt.title(title,loc = "right")
-else:
+
     plt.title(title)
 
 t = ax.yaxis.get_offset_text()
