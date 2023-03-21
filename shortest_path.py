@@ -277,6 +277,7 @@ if __name__ == '__main__':
     parser.add_argument("--iter",  type=int, default=3000)
     parser.add_argument("--save_address",  type=str, default='./SimulationResults/ShortestPath')
     parser.add_argument("--seed", help="random seed", type=int, default=0)
+    parser.add_argument("--target_type", help="how the target is chosen, spchosen, spchosen2, or random"  type=str, default='random')
 
     args = parser.parse_args()
     graph_address = args.graph
@@ -322,11 +323,8 @@ if __name__ == '__main__':
     print('edges:', len(G.edges()))
     print('Done with Loading Feature')
     print('Graph build time:', time.time() - start)
-    target_type = "spchosen2"
-    temp_path= [(1731,1730),(1730,862),(862,873),(873,861),(861,863),(862,860),(860,863)]
-    for (u,v) in temp_path:
-        print(u,v,P[u][v]["weight"])
-    raise ValueError("finish printing")
+    target_type = args.target_type
+
     if target_type == "random":
         num_exp = 100
     if target_type == "spchosen":

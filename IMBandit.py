@@ -12,7 +12,7 @@ from BanditAlg.CUCB import UCB1Algorithm
 from BanditAlg.CUCB_Attack import UCB1AlgorithmAttack
 # from BanditAlg.BanditAlgorithms_MF import MFAlgorithm
 # from BanditAlg.BanditAlgorithms_LinUCB import N_LinUCBAlgorithm
-from IC.IC import runICmodel_n, runICmodel_single_step
+from Oracle.IC.IC import runICmodel_n, runICmodel_single_step
 # from IC.runIAC  import weightedEp, runIAC, runIACmodel, randomEp, uniformEp
 
 class simulateOnlineData:
