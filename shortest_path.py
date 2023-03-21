@@ -11,7 +11,7 @@ from Tool.utilFunc import *
 
 from BanditAlg.CLCB import LCB1Algorithm 
 from BanditAlg.CLCB_Attack import LCB1AlgorithmAttack
-from Oracle.SP import ShortestPath,  TargetPath_Unattackable, TargetPath_Attackable, TargetPath_RandomWalk, TargetPath_RandomWeight
+from Oracle.SP import ShortestPath,  TargetPath_Unattackable, TargetPath_Attackable, TargetPath_RandomWalk, TargetPath_RandomWeight, TargetPath_Unattackable2
 
 def clean_to_weakly_connected(P):
     comp_gen = nx.weakly_connected_components(P)
@@ -97,6 +97,9 @@ class simulateOnlineData:
 
     def resultRecord(self, iter_=None):
         if target_type == "spchosen":
+            self.filenameWriteCost = os.path.join(save_address, 'Cost{}.csv'.format(target_type + str(self.seed)))
+            self.filenameTargetRate = os.path.join(save_address, 'Rate{}.csv'.format(target_type + str(self.seed)))
+        if target_type == "spchosen2":
             self.filenameWriteCost = os.path.join(save_address, 'Cost{}.csv'.format(target_type + str(self.seed)))
             self.filenameTargetRate = os.path.join(save_address, 'Rate{}.csv'.format(target_type + str(self.seed)))
         if target_type == "random":
@@ -319,11 +322,16 @@ if __name__ == '__main__':
     print('edges:', len(G.edges()))
     print('Done with Loading Feature')
     print('Graph build time:', time.time() - start)
-    target_type = "random"
-
+    target_type = "spchosen2"
+    temp_path= [(1731,1730),(1730,862),(862,873),(873,861),(861,863),(862,860),(860,863)]
+    for (u,v) in temp_path:
+        print(u,v,P[u][v]["weight"])
+    raise ValueError("finish printing")
     if target_type == "random":
         num_exp = 100
     if target_type == "spchosen":
+        num_exp = 10
+    if target_type == "spchosen2":
         num_exp = 10
     sum_attackable = 0
     for seed in range(0,num_exp):
@@ -333,6 +341,8 @@ if __name__ == '__main__':
         
         if target_type == "spchosen":
             Target, oracle_params = TargetPath_Unattackable(P)
+        if target_type == "spchosen2":
+            Target, oracle_params = TargetPath_Unattackable2(P)
         if target_type == "random":
             Target, oracle_params = TargetPath_RandomWeight(P)
 

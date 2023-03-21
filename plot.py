@@ -7,11 +7,11 @@ import argparse
 
 # SMALL_SIZE = 18
 # MEDIUM_SIZE = 15
-BIGGER_SIZE = 20
+BIGGER_SIZE = 25
 
 plt.rc('axes', titlesize=BIGGER_SIZE)     # fontsize of the title
 plt.rc('axes', labelsize=BIGGER_SIZE)    # fontsize of the x and y labels
-plt.rc('legend', fontsize=BIGGER_SIZE)    # legend fontsize
+plt.rc('legend', fontsize=20)    # legend fontsize
 plt.rc('xtick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
 plt.rc('ytick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
 
@@ -96,7 +96,7 @@ if os.path.exists(os.path.join('./SimulationResults', args.exp_name, args.exp_ty
     cols = list(grouped_df_mean.columns)
 
     for c in range(len(cols)):
-        plt.plot(range(grouped_df_mean.shape[0])[:3000], grouped_df_mean[cols[c]][:3000], label='Second Best ST Target', color=colors[1])
+        plt.plot(range(grouped_df_mean.shape[0])[:3000], grouped_df_mean[cols[c]][:3000], label='Fixed Target', color=colors[1])
         plt.fill_between(grouped_df_std.index[:3000], (grouped_df_mean[cols[c]] - grouped_df_std[cols[c]])[:3000], (grouped_df_mean[cols[c]] + grouped_df_std[cols[c]])[:3000], color=colors[1], alpha=0.2)
         # plt.fill_between(grouped_df_std.index[:3000], grouped_df_quantile_min[cols[c]][:3000], grouped_df_quantile_max[cols[c]][:3000], color=colors[1], alpha=0.2)
 
@@ -122,7 +122,7 @@ if os.path.exists(os.path.join('./SimulationResults', args.exp_name, args.exp_ty
     cols = list(grouped_df_mean.columns)
 
     for c in range(len(cols)):
-        plt.plot(range(grouped_df_mean.shape[0]), grouped_df_mean[cols[c]], label='Specially Chosen Target', color=colors[1])
+        plt.plot(range(grouped_df_mean.shape[0]), grouped_df_mean[cols[c]], label='Unattackable Target', color=colors[1])
         plt.fill_between(grouped_df_std.index[:3000], (grouped_df_mean[cols[c]] - grouped_df_std[cols[c]])[:3000], (grouped_df_mean[cols[c]] + grouped_df_std[cols[c]])[:3000], color=colors[1], alpha=0.2)
         # plt.fill_between(grouped_df_std.index, grouped_df_quantile_min[cols[c]], grouped_df_quantile_max[cols[c]], color=colors[1], alpha=0.2)
 
@@ -135,7 +135,7 @@ if args.exp_name == "SpanningTree":
 else:
     plt.legend(loc="upper left")
 
-    plt.title(title)
+plt.title(title)
 
 t = ax.yaxis.get_offset_text()
 t.set_x(-0.05)
