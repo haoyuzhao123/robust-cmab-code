@@ -57,7 +57,7 @@ class UCB1Algorithm:
         loss_in = 0
         for u in S:
             for (u, v) in self.G.edges(u):
-                if (u,v) in live_edges:
+                if (u,v) in live_edges or (v,u) in live_edges:
                     self.arms[(u, v)].updateParameters(reward=1)
                 else:
                     self.arms[(u, v)].updateParameters(reward=0)

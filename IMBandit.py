@@ -319,7 +319,9 @@ if __name__ == '__main__':
     simExperiment = simulateOnlineData(G, P, oracle, seed_size, iterations, dataset)
 
     algorithms = {}
-    algorithms['CUCB_Attack'] = UCB1AlgorithmAttack(G, P, parameter, seed_size, target_arms, oracle)
+    algorithms['CUCB_Attack_prop=1'] = UCB1AlgorithmAttack(G, P, parameter, seed_size, target_arms, oracle, prop_dist=1)
+    algorithms['CUCB_Attack_prop=2'] = UCB1AlgorithmAttack(G, P, parameter, seed_size, target_arms, oracle, prop_dist=2)
+    algorithms['CUCB_Attack_prop=3'] = UCB1AlgorithmAttack(G, P, parameter, seed_size, target_arms, oracle, prop_dist=3)
     # algorithms['Randomized CUCB_Attack'] = UCB1AlgorithmAttack(G, P, parameter, seed_size, target_arms_rand, oracle)
     algorithms['CUCB'] = UCB1Algorithm(G, P, parameter, seed_size, oracle)
 

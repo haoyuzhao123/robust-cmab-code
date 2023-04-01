@@ -37,7 +37,7 @@ dataset = 'Flickr-Random' #Choose from 'default', 'NetHEPT', 'Flickr'
 # gamma = 0.1
 # dimension = 4
 seed_size = 5
-iterations = 10000
+iterations = 1000
 
-oracle = generalGreedy
-# oracle = degreeDiscountIAC3
+# oracle = generalGreedy
+oracle = degreeDiscountIAC3

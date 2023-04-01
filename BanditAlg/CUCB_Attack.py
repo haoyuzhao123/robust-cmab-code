@@ -1,6 +1,7 @@
 from random import choice, random, sample
 import numpy as np
 import networkx as nx
+from copy import deepcopy
 
 class ArmBaseStruct(object):
     def __init__(self, armID):
@@ -28,7 +29,7 @@ class UCB1Struct(ArmBaseStruct):
 
              
 class UCB1AlgorithmAttack:
-    def __init__(self, G, P, parameter, seed_size, target_arms, oracle, feedback = 'edge'):
+    def __init__(self, G, P, parameter, seed_size, target_arms, oracle, feedback = 'edge', prop_dist=0):
         self.G = G
         self.trueP = P
         self.parameter = parameter  
@@ -43,12 +44,27 @@ class UCB1AlgorithmAttack:
             self.currentP.add_edge(u,v, weight=float('inf'))
         self.list_loss = []
         self.TotalPlayCounter = 0
-
+        self.prop_dist = prop_dist
+                
         self.target_arms = target_arms
         self.num_targetarm_played = []
         self.totalCost = []
         self.cost = []
         self.num_basearm_played = []
+
+        target_prop_dict = {}
+        self.target_prop_list = []
+        for u in self.target_arms:
+            target_prop_dict[u] = 1
+            self.target_prop_list.append(u)
+        for u in self.target_prop_list:
+            if target_prop_dict[u] < self.prop_dist:
+                diff = list(set(self.G.neighbors(u)).difference(set(self.target_prop_list)))
+                for n in diff:
+                    self.target_prop_list.append(n)
+                    target_prop_dict[n] = target_prop_dict[u] + 1
+
+        print(len(self.target_prop_list))
 
         
     def decide(self):
@@ -64,11 +80,14 @@ class UCB1AlgorithmAttack:
     def numTargetPlayed(self, S):
         num_basearm_played = 0
         num_targetarm_played = 0
+
         for u in S:
             if u in self.target_arms:
                 num_basearm_played += 1
+
         if num_basearm_played == self.seed_size:
             num_targetarm_played = 1
+
         num_basearm_played = num_basearm_played*100/self.seed_size
         self.num_basearm_played.append(num_basearm_played)
         if len(self.num_targetarm_played) == 0:
@@ -85,16 +104,18 @@ class UCB1AlgorithmAttack:
         cost = 0
         # print(live_edges)
         for u in S:
+            # print(live_edges)
+            # print(self.target_arms)
             for (u, v) in self.G.edges(u):
                 # if u == 509912501:
                 #     print(live_edges)
                 #     print("Here")
-                if (u,v) in live_edges:
-                    if u in self.target_arms:
+                if (u,v) in live_edges or (v,u) in live_edges:
+                    if u in self.target_prop_list or v in self.target_prop_list:
                         self.arms[(u, v)].updateParameters(reward=1)
                     else:
                         self.arms[(u, v)].updateParameters(reward=0)
-                        cost += live_edges[(u,v)]
+                        cost += 1
                 else:
                     self.arms[(u, v)].updateParameters(reward=0)
                 
