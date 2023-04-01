@@ -152,7 +152,7 @@ def degreeDiscountIAC3(G, k, Ep):
 
     # add vertices to S greedily
     for i in range(k):
-        u, priority, _ = dd.pop_item() # extract node with maximal degree discount
+        u, priority = dd.pop_item() # extract node with maximal degree discount
         S.append(u)
         for v in G[u]:
             if v not in S:

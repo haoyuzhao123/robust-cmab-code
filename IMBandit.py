@@ -323,6 +323,6 @@ if __name__ == '__main__':
     algorithms['CUCB_Attack_prop=2'] = UCB1AlgorithmAttack(G, P, parameter, seed_size, target_arms, oracle, prop_dist=2)
     algorithms['CUCB_Attack_prop=3'] = UCB1AlgorithmAttack(G, P, parameter, seed_size, target_arms, oracle, prop_dist=3)
     # algorithms['Randomized CUCB_Attack'] = UCB1AlgorithmAttack(G, P, parameter, seed_size, target_arms_rand, oracle)
-    algorithms['CUCB'] = UCB1Algorithm(G, P, parameter, seed_size, oracle)
+    # algorithms['CUCB'] = UCB1Algorithm(G, P, parameter, seed_size, oracle)
 
     simExperiment.runAlgorithms(algorithms)

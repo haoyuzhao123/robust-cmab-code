@@ -81,6 +81,9 @@ class UCB1AlgorithmAttack:
         num_basearm_played = 0
         num_targetarm_played = 0
 
+        print("S", S)
+        print("T", self.target_arms)
+
         for u in S:
             if u in self.target_arms:
                 num_basearm_played += 1
@@ -102,15 +105,9 @@ class UCB1AlgorithmAttack:
         loss_out = 0
         loss_in = 0
         cost = 0
-        # print(live_edges)
-        for u in S:
-            # print(live_edges)
-            # print(self.target_arms)
+        for u in live_nodes:
             for (u, v) in self.G.edges(u):
-                # if u == 509912501:
-                #     print(live_edges)
-                #     print("Here")
-                if (u,v) in live_edges or (v,u) in live_edges:
+                if (u,v) in live_edges:
                     if u in self.target_prop_list or v in self.target_prop_list:
                         self.arms[(u, v)].updateParameters(reward=1)
                     else:
