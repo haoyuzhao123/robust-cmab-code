@@ -17,7 +17,7 @@ def generalGreedy(G, k, p):
     '''
     import time
     start = time.time()
-    R = 1 # number of times to run Random Cascade
+    R = 100 # number of times to run Random Cascade
     S = [] # set of selected nodes
     T = [] # set of activated nodes 
     # add node to S if achieves maximum propagation for current chosen + this node
@@ -27,7 +27,7 @@ def generalGreedy(G, k, p):
             if v not in S:
                 reward = 0
                 for j in range(R): # run R times Random Cascade
-                    r, T_new, _ = runICmodel_n(G, v, p, T+[v])
+                    r, T_new, _, _ = runICmodel_n(G, v, p, T+[v])
                     reward += r
                 s.add_task(v, -reward/R, T_new) # add normalized spread value
         task, priority, T = s.pop_item()

@@ -42,7 +42,7 @@ def runICmodel_n (G, v_added, P, T=[]):
                     E[(v_new, v)] = 1
     reward = len(T_new)
 
-    return reward, T_new, E
+    return reward, T_new, E, None
 
 
 def runICmodel_single_step (G, v_added, P, T=[]):

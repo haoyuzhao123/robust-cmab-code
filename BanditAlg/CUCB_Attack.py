@@ -57,7 +57,7 @@ class UCB1AlgorithmAttack:
         # print(self.target_arms)
         # print(S)
         
-        print(len(list(set(S).difference(set(self.target_arms)))))
+        # print(len(list(set(S).difference(set(self.target_arms)))))
 
         return S       
 

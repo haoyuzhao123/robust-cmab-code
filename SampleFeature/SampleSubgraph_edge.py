@@ -5,8 +5,8 @@ import networkx as nx
 import random
 
 save_dir = '../datasets/Flickr/'
-max_degree = 10
-min_degree = 8
+max_degree = 5
+min_degree = 2
 NodeList = pickle.load(open(save_dir+'NodesDegree'+str(max_degree)+'_'+str(min_degree)+'.list', "rb" ))
 print('Done with loading List')
 

@@ -70,7 +70,7 @@ class simulateOnlineData:
             
             for alg_name, alg in list(algorithms.items()): 
                 S = alg.decide() 
-                reward, live_nodes, live_edges, _ = runICmodel_single_step(G, S, self.TrueP)
+                reward, live_nodes, live_edges, _ = runICmodel_n(G, S, self.TrueP)
 
                 alg.updateParameters(S, live_nodes, live_edges, iter_)
 
@@ -156,7 +156,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Reward")
         axa.set_title("Average Reward")
-        plt.savefig('./SimulationResults/SetCover/AvgReward' + str(args.exp_num)+'.png')
+        plt.savefig('./SimulationResults/IM_seed_size_5/AvgReward' + str(args.exp_num)+'.png')
         plt.show()
 
         # # plot accumulated reward
@@ -180,7 +180,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Cost")
         axa.set_title("Cost")
-        plt.savefig('./SimulationResults/SetCover/Cost' + str(args.exp_num)+'.png')
+        plt.savefig('./SimulationResults/IM_seed_size_5/Cost' + str(args.exp_num)+'.png')
         plt.show()
 
         # plot cumulative cost
@@ -192,7 +192,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Cost")
         axa.set_title("Total Cost")
-        plt.savefig('./SimulationResults/SetCover/TotalCost' + str(args.exp_num)+'.png')
+        plt.savefig('./SimulationResults/IM_seed_size_5/TotalCost' + str(args.exp_num)+'.png')
         plt.show()
 
         # plot basearm played
@@ -204,7 +204,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Percentage")
         axa.set_title("Percentage of basearms in superarm played")
-        plt.savefig('./SimulationResults/SetCover/BasearmPlayed' + str(args.exp_num)+'.png')
+        plt.savefig('./SimulationResults/IM_seed_size_5/BasearmPlayed' + str(args.exp_num)+'.png')
         plt.show()
 
         # plot superarm played
@@ -216,7 +216,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Count")
         axa.set_title("Number of times target arm is played")
-        plt.savefig('./SimulationResults/SetCover/TargetarmPlayed' + str(args.exp_num)+'.png')
+        plt.savefig('./SimulationResults/IM_seed_size_5/TargetarmPlayed' + str(args.exp_num)+'.png')
         plt.show()
         
 if __name__ == '__main__':
@@ -233,6 +233,8 @@ if __name__ == '__main__':
     feature_dic = pickle.load(open(edge_feature_address, 'rb'), encoding='latin1')
 
     G = clean_to_weakly_connected(G)
+
+    print(f"Number of nodes: {len(G.nodes())}, Number of edges: {len(G.edges())}")
 
     P = nx.DiGraph()
     # randP = nx.DiGraph()
@@ -269,6 +271,8 @@ if __name__ == '__main__':
     target_arms = list(dict(sorted(n.items(), key=lambda x: x[1], reverse=True)).keys())[seed_size:2*seed_size]
 
     target_arms_rand = random.sample(list(n_05.keys()), seed_size)
+    # print(target_arms_rand)
+    # exit()
 
     # target_arms_rand = oracle(G, seed_size, P)
 
@@ -315,8 +319,8 @@ if __name__ == '__main__':
     simExperiment = simulateOnlineData(G, P, oracle, seed_size, iterations, dataset)
 
     algorithms = {}
-    algorithms['CUCB'] = UCB1Algorithm(G, P, parameter, seed_size, oracle)
     algorithms['CUCB_Attack'] = UCB1AlgorithmAttack(G, P, parameter, seed_size, target_arms, oracle)
-    algorithms['Randomized CUCB_Attack'] = UCB1AlgorithmAttack(G, P, parameter, seed_size, target_arms_rand, oracle)
+    # algorithms['Randomized CUCB_Attack'] = UCB1AlgorithmAttack(G, P, parameter, seed_size, target_arms_rand, oracle)
+    algorithms['CUCB'] = UCB1Algorithm(G, P, parameter, seed_size, oracle)
 
     simExperiment.runAlgorithms(algorithms)

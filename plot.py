@@ -7,7 +7,7 @@ import argparse
 
 # SMALL_SIZE = 18
 # MEDIUM_SIZE = 15
-BIGGER_SIZE = 20
+BIGGER_SIZE = 10 # 20 for paper
 
 plt.rc('axes', titlesize=BIGGER_SIZE)     # fontsize of the title
 plt.rc('axes', labelsize=BIGGER_SIZE)    # fontsize of the x and y labels
@@ -94,6 +94,6 @@ t.set_x(-0.05)
 plt.tight_layout()
 
 print("saving")
-plt.savefig(os.path.join('./SimulationResults', args.exp_name, args.exp_type + '.pdf'))
+plt.savefig(os.path.join('./SimulationResults', args.exp_name, args.exp_type + '.png'))
 # plt.show()
 
