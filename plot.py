@@ -7,7 +7,7 @@ import argparse
 
 # SMALL_SIZE = 18
 # MEDIUM_SIZE = 15
-BIGGER_SIZE = 12 # 20 for paper
+BIGGER_SIZE = 20 # 20 for paper
 
 plt.rc('axes', titlesize=BIGGER_SIZE)     # fontsize of the title
 plt.rc('axes', labelsize=BIGGER_SIZE)    # fontsize of the x and y labels
@@ -50,7 +50,7 @@ if args.exp_type == 'BaseArmRate':
 exp_num = 0
 
 while os.path.exists(os.path.join('./SimulationResults', args.exp_name, args.exp_type + str(exp_num) + '.csv')):
-    data = pd.read_csv(os.path.join('./SimulationResults', args.exp_name, args.exp_type + str(exp_num) + '.csv')).iloc[:80000, :]
+    data = pd.read_csv(os.path.join('./SimulationResults', args.exp_name, args.exp_type + str(exp_num) + '.csv')).iloc[:1500, :]
     exp.append(data)
     exp_num += 1
 
