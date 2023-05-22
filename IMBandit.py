@@ -86,11 +86,12 @@ class simulateOnlineData:
             self.filenameWriteReward = os.path.join(save_address, 'Reward{}.csv'.format(str(args.exp_num)))
             self.filenameWriteCost = os.path.join(save_address, 'Cost{}.csv'.format(str(args.exp_num)))
             self.filenameTargetRate = os.path.join(save_address, 'Rate{}.csv'.format(str(args.exp_num)))
+            self.filenameBaseArmRate = os.path.join(save_address, 'BaseArmRate{}.csv'.format(str(args.exp_num)))
 
             if not os.path.exists(save_address):
                 os.mkdir(save_address)
 
-            if os.path.exists(self.filenameWriteReward) or os.path.exists(self.filenameWriteCost) or os.path.exists(self.filenameTargetRate):
+            if os.path.exists(self.filenameWriteReward) or os.path.exists(self.filenameWriteCost) or os.path.exists(self.filenameTargetRate) or os.path.exists(self.filenameBaseArmRate):
                 raise ValueError ("Save File exists already, please check experiment number")
 
             with open(self.filenameWriteReward, 'w') as f:
@@ -108,6 +109,15 @@ class simulateOnlineData:
                 f.write('\n') 
 
             with open(self.filenameTargetRate, 'w') as f:
+                f.write('Time(Iteration)')
+                l = []
+                for alg_name in algorithms.keys():
+                    if 'Attack' in alg_name:
+                        l.append(alg_name)
+                f.write(',' + ','.join(l))
+                f.write('\n') 
+
+            with open(self.filenameBaseArmRate, 'w') as f:
                 f.write('Time(Iteration)')
                 l = []
                 for alg_name in algorithms.keys():
@@ -142,6 +152,15 @@ class simulateOnlineData:
                 for alg_name in algorithms.keys():
                     if 'Attack' in alg_name:
                         l.append(str(algorithms[alg_name].num_targetarm_played[-1]))
+                f.write(',' + ','.join(l))
+                f.write('\n')
+
+            with open(self.filenameBaseArmRate, 'a+') as f:
+                f.write(str(iter_))
+                l = []
+                for alg_name in algorithms.keys():
+                    if 'Attack' in alg_name:
+                        l.append(str(algorithms[alg_name].num_basearm_played[-1]))
                 f.write(',' + ','.join(l))
                 f.write('\n')
 
@@ -250,6 +269,7 @@ if __name__ == '__main__':
     print('edges:', len(G.edges()))
     print('Done with Loading Feature')
     print('Graph build time:', time.time() - start)
+    total_graph_length = dict(nx.all_pairs_dijkstra_path_length(G))
     
     n = {}
     n_05 = {}
@@ -268,9 +288,17 @@ if __name__ == '__main__':
         if n[u] >= 0.5:
             n_05[u] = n[u]
 
-    target_arms = list(dict(sorted(n.items(), key=lambda x: x[1], reverse=True)).keys())[seed_size:2*seed_size]
+    # target_arms = list(dict(sorted(n.items(), key=lambda x: x[1], reverse=True)).keys())[seed_size:2*seed_size]
+    target_arms = random.sample(list(n_05.keys()), seed_size)
+    # target_arms_full = random.sample(list(n.keys()), seed_size)
 
-    target_arms_rand = random.sample(list(n_05.keys()), seed_size)
+    for i in range(len(target_arms)):
+        for j in range(i+1, len(target_arms)):
+            print(i, j, total_graph_length[target_arms[i]][target_arms[j]])
+    # exit()
+
+
+    
     # print(target_arms_rand)
     # exit()
 

@@ -21,7 +21,7 @@ class UCB1Struct(ArmBaseStruct):
         if self.numPlayed==0:
             return float('inf')
         else:
-            p = self.totalReward / float(self.numPlayed) + 1e-2*np.sqrt(3*np.log(allNumPlayed) / (2.0 * self.numPlayed))
+            p = self.totalReward / float(self.numPlayed) + 1e-3*np.sqrt(3*np.log(allNumPlayed) / (2.0 * self.numPlayed))
             if p > self.p_max:
                 p = self.p_max
                 # print 'p_max'
@@ -29,7 +29,7 @@ class UCB1Struct(ArmBaseStruct):
 
              
 class UCB1AlgorithmAttack:
-    def __init__(self, G, P, parameter, seed_size, target_arms, oracle, feedback = 'edge', prop_dist=0):
+    def __init__(self, G, P, parameter, seed_size, target_arms, oracle, feedback = 'edge', prop_dist=1):
         self.G = G
         self.trueP = P
         self.parameter = parameter  
@@ -45,7 +45,7 @@ class UCB1AlgorithmAttack:
         self.list_loss = []
         self.TotalPlayCounter = 0
         self.prop_dist = prop_dist
-                
+
         self.target_arms = target_arms
         self.num_targetarm_played = []
         self.totalCost = []
@@ -64,25 +64,16 @@ class UCB1AlgorithmAttack:
                     self.target_prop_list.append(n)
                     target_prop_dict[n] = target_prop_dict[u] + 1
 
-        print(len(self.target_prop_list))
-
         
     def decide(self):
         self.TotalPlayCounter +=1
-        S = self.oracle(self.G, self.seed_size, self.currentP)
-        # print(self.target_arms)
-        # print(S)
-        
-        # print(len(list(set(S).difference(set(self.target_arms)))))
+        S = self.oracle(self.G, self.seed_size, self.currentP)        
 
         return S       
 
     def numTargetPlayed(self, S):
         num_basearm_played = 0
         num_targetarm_played = 0
-
-        print("S", S)
-        print("T", self.target_arms)
 
         for u in S:
             if u in self.target_arms:

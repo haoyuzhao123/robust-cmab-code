@@ -86,11 +86,12 @@ class simulateOnlineData:
             self.filenameWriteReward = os.path.join(save_address, 'Reward{}.csv'.format(str(args.exp_num)))
             self.filenameWriteCost = os.path.join(save_address, 'Cost{}.csv'.format(str(args.exp_num)))
             self.filenameTargetRate = os.path.join(save_address, 'Rate{}.csv'.format(str(args.exp_num)))
+            self.filenameBaseArmRate = os.path.join(save_address, 'BaseArmRate{}.csv'.format(str(args.exp_num)))
 
             if not os.path.exists(save_address):
                 os.mkdir(save_address)
 
-            if os.path.exists(self.filenameWriteReward) or os.path.exists(self.filenameWriteCost) or os.path.exists(self.filenameTargetRate):
+            if os.path.exists(self.filenameWriteReward) or os.path.exists(self.filenameWriteCost) or os.path.exists(self.filenameTargetRate) or os.path.exists(self.filenameBaseArmRate):
                 raise ValueError ("Save File exists already, please check experiment number")
 
             with open(self.filenameWriteReward, 'w') as f:
@@ -108,6 +109,15 @@ class simulateOnlineData:
                 f.write('\n') 
 
             with open(self.filenameTargetRate, 'w') as f:
+                f.write('Time(Iteration)')
+                l = []
+                for alg_name in algorithms.keys():
+                    if 'Attack' in alg_name:
+                        l.append(alg_name)
+                f.write(',' + ','.join(l))
+                f.write('\n') 
+
+            with open(self.filenameBaseArmRate, 'w') as f:
                 f.write('Time(Iteration)')
                 l = []
                 for alg_name in algorithms.keys():
@@ -142,6 +152,15 @@ class simulateOnlineData:
                 for alg_name in algorithms.keys():
                     if 'Attack' in alg_name:
                         l.append(str(algorithms[alg_name].num_targetarm_played[-1]))
+                f.write(',' + ','.join(l))
+                f.write('\n')
+
+            with open(self.filenameBaseArmRate, 'a+') as f:
+                f.write(str(iter_))
+                l = []
+                for alg_name in algorithms.keys():
+                    if 'Attack' in alg_name:
+                        l.append(str(algorithms[alg_name].num_basearm_played[-1]))
                 f.write(',' + ','.join(l))
                 f.write('\n')
 

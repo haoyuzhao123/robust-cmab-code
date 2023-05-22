@@ -41,12 +41,11 @@ print('AverageDegree', sum(NodeDegree.values())/float(len(NodeDegree)))
 
 FinalNodeList =[]
 FinalNodeDegree  = {}
-max_degree = 5
-min_degree = 2
+max_degree = 1000
+min_degree = 0
 
 for key in NodeDegree:
 	if NodeDegree[key] <= max_degree and NodeDegree[key] >= min_degree:
-		print(NodeDegree[key])
 		FinalNodeList.append(key)
 		FinalNodeDegree[key] = NodeDegree[key]
 

@@ -7,7 +7,7 @@ import argparse
 
 # SMALL_SIZE = 18
 # MEDIUM_SIZE = 15
-BIGGER_SIZE = 10 # 20 for paper
+BIGGER_SIZE = 12 # 20 for paper
 
 plt.rc('axes', titlesize=BIGGER_SIZE)     # fontsize of the title
 plt.rc('axes', labelsize=BIGGER_SIZE)    # fontsize of the x and y labels
@@ -43,10 +43,14 @@ if args.exp_type == 'Rate':
     y_label = 'Count'
     title = "Target Arm Trigger Rate"
 
+if args.exp_type == 'BaseArmRate':
+    y_label = 'Percentage'
+    title = "Percentage of Base Arms Selected"
+
 exp_num = 0
 
 while os.path.exists(os.path.join('./SimulationResults', args.exp_name, args.exp_type + str(exp_num) + '.csv')):
-    data = pd.read_csv(os.path.join('./SimulationResults', args.exp_name, args.exp_type + str(exp_num) + '.csv'))
+    data = pd.read_csv(os.path.join('./SimulationResults', args.exp_name, args.exp_type + str(exp_num) + '.csv')).iloc[:80000, :]
     exp.append(data)
     exp_num += 1
 
@@ -56,7 +60,7 @@ cols = df.columns.tolist()
 cols = cols[::-1]
 df = df[cols]
 
-print(df)
+print(df.shape)
 
 grouped_df_mean = df.groupby(["Time(Iteration)"]).mean()
 grouped_df_std = df.groupby(["Time(Iteration)"]).std()
@@ -66,7 +70,7 @@ grouped_df_quantile_min = df.groupby(["Time(Iteration)"]).quantile(quant_num)
 grouped_df_quantile_max = df.groupby(["Time(Iteration)"]).quantile(1-quant_num)
 
 
-labels = {'Randomized CUCB_Attack': 'Random Target', 'CUCB_Attack': 'Fixed Target', 'CascadeUCB-V-Attack': 'CascadeUCB-V', 'CascadeUCB1-Attack': 'CascadeUCB1', 'CascadeKLUCB-Attack': 'CascadeKLUCB'}
+labels = {'Randomized CUCB_Attack': 'Random Target', 'CUCB_Attack': 'Fixed Target', 'CascadeUCB-V-Attack': 'CascadeUCB-V', 'CascadeUCB1-Attack': 'CascadeUCB1', 'CascadeKLUCB-Attack': 'CascadeKLUCB', 'CUCB_Attack_prop=3': 'Diffusion Length=3', 'CUCB_Attack_prop=2': 'Diffusion Length=2', 'CUCB_Attack_prop=1': 'Diffusion Length=1'}
 
 fig, ax = plt.subplots()
 ax.ticklabel_format(style='sci', useOffset=True, scilimits=(0, 0))

@@ -2,14 +2,15 @@ import os
 from Oracle.generalGreedy import generalGreedy
 from Oracle.greedySetCover import greedySetCover
 from Oracle.degreeDiscount import degreeDiscountIAC3
+from Oracle.IMM import imm
 
 save_address = "./SimulationResults/IM_seed_size_5"
 
-graph_address = './datasets/Flickr/SubG12-15.G'
-prob_address = './datasets/Flickr/ProbUnion.dic'
-param_address = './datasets/Flickr/NodeFeaturesUnion.dic'
-edge_feature_address = './datasets/Flickr/EdgeFeaturesUnion.dic'
-dataset = 'Flickr-Random' #Choose from 'default', 'NetHEPT', 'Flickr'
+# graph_address = './datasets/Flickr/SubG12-15.G'
+# prob_address = './datasets/Flickr/ProbUnion.dic'
+# param_address = './datasets/Flickr/NodeFeaturesUnion.dic'
+# edge_feature_address = './datasets/Flickr/EdgeFeaturesUnion.dic'
+# dataset = 'Flickr-Random' #Choose from 'default', 'NetHEPT', 'Flickr'
 
 
 # graph_address = './datasets/Flickr/Small_Final_SubG.G'
@@ -18,11 +19,11 @@ dataset = 'Flickr-Random' #Choose from 'default', 'NetHEPT', 'Flickr'
 # edge_feature_address = './datasets/Flickr/Small_edgeFeatures.dic'
 # dataset = 'Flickr-Random' #Choose from 'default', 'NetHEPT', 'Flickr'
 
-# graph_address = './datasets/Flickr/G_Union.G'
-# prob_address = './datasets/Flickr/ProbUnion.dic'
-# param_address = './datasets/Flickr/NodeFeaturesUnion.dic'
-# edge_feature_address = './datasets/Flickr/EdgeFeaturesUnion.dic'
-# dataset = 'Flickr' #Choose from 'default', 'NetHEPT', 'Flickr'
+graph_address = './datasets/Flickr/G_Union.G'
+prob_address = './datasets/Flickr/ProbUnion.dic'
+param_address = './datasets/Flickr/NodeFeaturesUnion.dic'
+edge_feature_address = './datasets/Flickr/EdgeFeaturesUnion.dic'
+dataset = 'Flickr' #Choose from 'default', 'NetHEPT', 'Flickr'
 
 # graph_address = './datasets/NetHEPT/Small_Final_SubG.G'
 # prob_address = './datasets/NetHEPT/Probability.dic'
@@ -37,7 +38,8 @@ dataset = 'Flickr-Random' #Choose from 'default', 'NetHEPT', 'Flickr'
 # gamma = 0.1
 # dimension = 4
 seed_size = 5
-iterations = 1000
+iterations = 5000
 
 # oracle = generalGreedy
-oracle = degreeDiscountIAC3
+# oracle = degreeDiscountIAC3
+oracle = imm

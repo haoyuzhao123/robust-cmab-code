@@ -65,11 +65,12 @@ class simulateOnlineData:
             self.filenameWriteRegret = os.path.join(save_address, 'Regret{}.csv'.format(str(args.exp_num)))
             self.filenameWriteCost = os.path.join(save_address, 'Cost{}.csv'.format(str(args.exp_num)))
             self.filenameTargetRate = os.path.join(save_address, 'Rate{}.csv'.format(str(args.exp_num)))
+            self.filenameBaseArmRate = os.path.join(save_address, 'BaseArmRate{}.csv'.format(str(args.exp_num)))
 
             if not os.path.exists(save_address):
                 os.mkdir(save_address)
 
-            if os.path.exists(self.filenameWriteRegret) or os.path.exists(self.filenameWriteCost) or os.path.exists(self.filenameTargetRate):
+            if os.path.exists(self.filenameWriteRegret) or os.path.exists(self.filenameWriteCost) or os.path.exists(self.filenameTargetRate) or os.path.exists(self.filenameBaseArmRate):
                 raise ValueError ("Save File exists already, please check experiment number")
 
             with open(self.filenameWriteRegret, 'w') as f:
@@ -94,6 +95,16 @@ class simulateOnlineData:
                         l.append(alg_name)
                 f.write(',' + ','.join(l))
                 f.write('\n') 
+
+            with open(self.filenameBaseArmRate, 'w') as f:
+                f.write('Time(Iteration)')
+                l = []
+                for alg_name in algorithms.keys():
+                    if 'Attack' in alg_name:
+                        l.append(alg_name)
+                f.write(',' + ','.join(l))
+                f.write('\n') 
+        
         else:
             # if run in the experiment, save the results
             print("Iteration %d" % iter_, " Elapsed time", datetime.datetime.now() - self.startTime)
@@ -114,13 +125,21 @@ class simulateOnlineData:
                 f.write(',' + ','.join(l))
                 f.write('\n')
 
-            
             with open(self.filenameTargetRate, 'a+') as f:
                 f.write(str(iter_))
                 l = []
                 for alg_name in algorithms.keys():
                     if 'Attack' in alg_name:
                         l.append(str(algorithms[alg_name].num_targetarm_played[-1]))
+                f.write(',' + ','.join(l))
+                f.write('\n')
+
+            with open(self.filenameBaseArmRate, 'a+') as f:
+                f.write(str(iter_))
+                l = []
+                for alg_name in algorithms.keys():
+                    if 'Attack' in alg_name:
+                        l.append(str(algorithms[alg_name].num_basearm_played[-1]))
                 f.write(',' + ','.join(l))
                 f.write('\n')
 
@@ -136,7 +155,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Regret")
         axa.set_title("Average Regret")
-        plt.savefig('./SimulationResults/CascadeBanditRandom/AvgRegret' + str(args.exp_num)+'.png')
+        plt.savefig('./SimulationResults/CascadeBandit/AvgRegret' + str(args.exp_num)+'.png')
         plt.show()
 
         # plot cost
@@ -148,7 +167,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Cost")
         axa.set_title("Cost")
-        plt.savefig('./SimulationResults/CascadeBanditRandom/Cost' + str(args.exp_num)+'.png')
+        plt.savefig('./SimulationResults/CascadeBandit/Cost' + str(args.exp_num)+'.png')
         plt.show()
 
         # plot cumulative cost
@@ -160,7 +179,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Cost")
         axa.set_title("Total Cost")
-        plt.savefig('./SimulationResults/CascadeBanditRandom/TotalCost' + str(args.exp_num)+'.png')
+        plt.savefig('./SimulationResults/CascadeBandit/TotalCost' + str(args.exp_num)+'.png')
         plt.show()
 
         # plot basearm played
@@ -172,7 +191,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Percentage")
         axa.set_title("Percentage of basearms in superarm played")
-        plt.savefig('./SimulationResults/CascadeBanditRandom/BasearmPlayed' + str(args.exp_num)+'.png')
+        plt.savefig('./SimulationResults/CascadeBandit/BasearmPlayed' + str(args.exp_num)+'.png')
         plt.show()
 
         # plot superarm played
@@ -184,7 +203,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Count")
         axa.set_title("Number of times target arm is played")
-        plt.savefig('./SimulationResults/CascadeBanditRandom/TargetarmPlayed' + str(args.exp_num)+'.png')
+        plt.savefig('./SimulationResults/CascadeBandit/TargetarmPlayed' + str(args.exp_num)+'.png')
         plt.show()
 
 
@@ -206,6 +225,7 @@ if __name__ == '__main__':
     simExperiment = simulateOnlineData(data, seed_size, iterations)
 
     target_arms = data.target_arms
+    print(target_arms)
     # target_arms = random.sample(range(data.num_arms), seed_size)
 
     algorithms = {}
