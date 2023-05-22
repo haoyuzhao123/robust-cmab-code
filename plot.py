@@ -50,7 +50,7 @@ if args.exp_type == 'BaseArmRate':
 exp_num = 0
 
 while os.path.exists(os.path.join('./SimulationResults', args.exp_name, args.exp_type + str(exp_num) + '.csv')):
-    data = pd.read_csv(os.path.join('./SimulationResults', args.exp_name, args.exp_type + str(exp_num) + '.csv')).iloc[:1500, :]
+    data = pd.read_csv(os.path.join('./SimulationResults', args.exp_name, args.exp_type + str(exp_num) + '.csv')).iloc[:2000, :]
     exp.append(data)
     exp_num += 1
 
@@ -70,7 +70,7 @@ grouped_df_quantile_min = df.groupby(["Time(Iteration)"]).quantile(quant_num)
 grouped_df_quantile_max = df.groupby(["Time(Iteration)"]).quantile(1-quant_num)
 
 
-labels = {'Randomized CUCB_Attack': 'Random Target', 'CUCB_Attack': 'Fixed Target', 'CascadeUCB-V-Attack': 'CascadeUCB-V', 'CascadeUCB1-Attack': 'CascadeUCB1', 'CascadeKLUCB-Attack': 'CascadeKLUCB', 'CUCB_Attack_prop=3': 'Diffusion Length=3', 'CUCB_Attack_prop=2': 'Diffusion Length=2', 'CUCB_Attack_prop=1': 'Diffusion Length=1'}
+labels = {'Randomized CUCB_Attack': 'Random Target', 'CUCB_Attack': 'Fixed Target', 'CascadeUCB-V-Attack': 'CascadeUCB-V', 'CascadeUCB1-Attack': 'CascadeUCB1', 'CascadeKLUCB-Attack': 'CascadeKLUCB', 'CUCB_Attack_prop=3': 'CUCB (l=3)', 'CUCB_Attack_prop=2': 'CUCB (l=2)', 'CUCB_Attack_prop=1': 'CUCB (l=1)'}
 
 fig, ax = plt.subplots()
 ax.ticklabel_format(style='sci', useOffset=True, scilimits=(0, 0))
@@ -98,6 +98,6 @@ t.set_x(-0.05)
 plt.tight_layout()
 
 print("saving")
-plt.savefig(os.path.join('./SimulationResults', args.exp_name, args.exp_type + '.png'))
+plt.savefig(os.path.join('./SimulationResults', args.exp_name, args.exp_type + '.pdf'))
 # plt.show()
 
