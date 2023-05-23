@@ -38,7 +38,7 @@ dataset = 'Flickr' #Choose from 'default', 'NetHEPT', 'Flickr'
 # gamma = 0.1
 # dimension = 4
 seed_size = 5
-iterations = 100000
+iterations = 5000
 
 oracle = greedySetCover
 # oracle = degreeDiscountIAC3
