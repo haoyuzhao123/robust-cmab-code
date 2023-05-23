@@ -47,7 +47,7 @@ if args.exp_type == 'BaseArmRate':
     y_label = 'Percentage'
     title = "Percentage of Base Arms Selected"
 
-exp_num = 0
+exp_num = 101
 
 while os.path.exists(os.path.join('./SimulationResults', args.exp_name, args.exp_type + str(exp_num) + '.csv')):
     data = pd.read_csv(os.path.join('./SimulationResults', args.exp_name, args.exp_type + str(exp_num) + '.csv'))
@@ -81,7 +81,7 @@ colors = list(mcolors.TABLEAU_COLORS.keys())
 cols = list(grouped_df_mean.columns)
 
 for c in range(len(cols)):
-    plt.plot(range(grouped_df_mean.shape[0]), grouped_df_mean[cols[c]], label=labels[cols[c]], color=colors[c])
+    plt.plot(range(grouped_df_mean.shape[0]), grouped_df_mean[cols[c]], label=labels[cols[c]], color=colors[c], alpha=0.75)
     # plt.fill_between(grouped_df_std.index, grouped_df_quantile_max[cols[c]], grouped_df_quantile_min[cols[c]], color=colors[c], alpha=0.2)
 
     # plt.fill_between(grouped_df_std.index, (grouped_df_mean[cols[c]] - grouped_df_std[cols[c]]).clip(0, None), grouped_df_mean[cols[c]] + grouped_df_std[cols[c]], color=colors[c], alpha=0.2)
