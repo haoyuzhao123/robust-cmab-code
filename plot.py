@@ -75,7 +75,7 @@ grouped_df_quantile_max = df.groupby(["Time(Iteration)"]).quantile(1-quant_num)
 labels = {'Randomized CUCB_Attack': 'Random Target', 'CUCB_Attack': 'Fixed Target', 'CascadeUCB-V-Attack': 'CascadeUCB-V', 'CascadeUCB1-Attack': 'CascadeUCB1', 'CascadeKLUCB-Attack': 'CascadeKLUCB', 'CUCB_Attack_prop=3': 'CUCB (l=3)', 'CUCB_Attack_prop=2': 'CUCB (l=2)', 'CUCB_Attack_prop=1': 'CUCB (l=1)'}
 
 fig, ax = plt.subplots()
-ax.ticklabel_format(style='sci', useOffset=True, scilimits=(0, 0))
+# ax.ticklabel_format(style='sci', useOffset=True, scilimits=(0, 0))
 
 colors = list(mcolors.TABLEAU_COLORS.keys())
 cols = list(grouped_df_mean.columns)
