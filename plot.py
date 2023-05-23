@@ -50,9 +50,11 @@ if args.exp_type == 'BaseArmRate':
 exp_num = 0
 
 while os.path.exists(os.path.join('./SimulationResults', args.exp_name, args.exp_type + str(exp_num) + '.csv')):
-    data = pd.read_csv(os.path.join('./SimulationResults', args.exp_name, args.exp_type + str(exp_num) + '.csv')).iloc[:2000, :]
+    data = pd.read_csv(os.path.join('./SimulationResults', args.exp_name, args.exp_type + str(exp_num) + '.csv'))
     exp.append(data)
     exp_num += 1
+
+    break
 
 df = pd.concat(exp, axis=0, ignore_index=True)[::-1]
 
@@ -82,7 +84,7 @@ for c in range(len(cols)):
     plt.plot(range(grouped_df_mean.shape[0]), grouped_df_mean[cols[c]], label=labels[cols[c]], color=colors[c])
     # plt.fill_between(grouped_df_std.index, grouped_df_quantile_max[cols[c]], grouped_df_quantile_min[cols[c]], color=colors[c], alpha=0.2)
 
-    plt.fill_between(grouped_df_std.index, (grouped_df_mean[cols[c]] - grouped_df_std[cols[c]]).clip(0, None), grouped_df_mean[cols[c]] + grouped_df_std[cols[c]], color=colors[c], alpha=0.2)
+    # plt.fill_between(grouped_df_std.index, (grouped_df_mean[cols[c]] - grouped_df_std[cols[c]]).clip(0, None), grouped_df_mean[cols[c]] + grouped_df_std[cols[c]], color=colors[c], alpha=0.2)
 
     
 
