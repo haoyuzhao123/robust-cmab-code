@@ -175,7 +175,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Reward")
         axa.set_title("Average Reward")
-        plt.savefig('./SimulationResults/SetCover/AvgReward' + str(args.exp_num)+'.png')
+        plt.savefig('./SimulationResults/SetCoverNew/AvgReward' + str(args.exp_num)+'.png')
         plt.show()
 
         # # plot accumulated reward
@@ -187,7 +187,7 @@ class simulateOnlineData:
         # axa.set_xlabel("Iteration")
         # axa.set_ylabel("Reward")
         # axa.set_title("Accumulated Reward")
-        # plt.savefig('./SimulationResults/SetCover/AccReward' + str(args.exp_num)+'.png')
+        # plt.savefig('./SimulationResults/SetCoverNew/AccReward' + str(args.exp_num)+'.png')
         # plt.show()
 
         # plot cost
@@ -199,7 +199,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Cost")
         axa.set_title("Cost")
-        plt.savefig('./SimulationResults/SetCover/Cost' + str(args.exp_num)+'.png')
+        plt.savefig('./SimulationResults/SetCoverNew/Cost' + str(args.exp_num)+'.png')
         plt.show()
 
         # plot cumulative cost
@@ -211,7 +211,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Cost")
         axa.set_title("Total Cost")
-        plt.savefig('./SimulationResults/SetCover/TotalCost' + str(args.exp_num)+'.png')
+        plt.savefig('./SimulationResults/SetCoverNew/TotalCost' + str(args.exp_num)+'.png')
         plt.show()
 
         # plot basearm played
@@ -223,7 +223,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Percentage")
         axa.set_title("Percentage of basearms in superarm played")
-        plt.savefig('./SimulationResults/SetCover/BasearmPlayed' + str(args.exp_num)+'.png')
+        plt.savefig('./SimulationResults/SetCoverNew/BasearmPlayed' + str(args.exp_num)+'.png')
         plt.show()
 
         # plot superarm played
@@ -235,7 +235,7 @@ class simulateOnlineData:
         axa.set_xlabel("Iteration")
         axa.set_ylabel("Count")
         axa.set_title("Number of times target arm is played")
-        plt.savefig('./SimulationResults/SetCover/TargetarmPlayed' + str(args.exp_num)+'.png')
+        plt.savefig('./SimulationResults/SetCoverNew/TargetarmPlayed' + str(args.exp_num)+'.png')
         plt.show()
         
 if __name__ == '__main__':

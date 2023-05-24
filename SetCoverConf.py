@@ -4,7 +4,7 @@ from Oracle.greedySetCover import greedySetCover
 from Oracle.degreeDiscount import degreeDiscountIAC3
 from Oracle.IMM import imm
 
-save_address = "./SimulationResults/SetCover"
+save_address = "./SimulationResults/SetCoverNew"
 
 # graph_address = './datasets/Flickr/SubG12-15.G'
 # prob_address = './datasets/Flickr/ProbUnion.dic'

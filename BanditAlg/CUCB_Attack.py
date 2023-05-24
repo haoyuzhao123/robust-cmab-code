@@ -63,7 +63,6 @@ class UCB1AlgorithmAttack:
                 for n in diff:
                     self.target_prop_list.append(n)
                     target_prop_dict[n] = target_prop_dict[u] + 1
-
         
     def decide(self):
         self.TotalPlayCounter +=1
@@ -99,7 +98,7 @@ class UCB1AlgorithmAttack:
         for u in live_nodes:
             for (u, v) in self.G.edges(u):
                 if (u,v) in live_edges:
-                    if u in self.target_prop_list or v in self.target_prop_list:
+                    if u in self.target_prop_list:
                         self.arms[(u, v)].updateParameters(reward=1)
                     else:
                         self.arms[(u, v)].updateParameters(reward=0)
