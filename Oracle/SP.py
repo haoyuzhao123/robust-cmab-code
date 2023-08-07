@@ -21,7 +21,7 @@ def TargetPath_RandomWalk(P):
             s = np.random.randint(P.number_of_nodes())
         path_list = [s]
         exists = {s: None}
-        path_length = 50
+        path_length = 75
         u = s
         for i in range(path_length):
             sample = []
@@ -46,6 +46,8 @@ def TargetPath_RandomWalk(P):
         if shortest_path != path_list:
             break
     
+    print("Path Length", len(path_list))
+
     target = []
     for i in range(len(path_list)):
         if i==0:
@@ -142,7 +144,7 @@ def TargetPath_Unattackable(P):
             s = np.random.randint(P.number_of_nodes())
         path_list = [s]
         exists = {s: None}
-        path_length = 50
+        path_length = 75
         u = s
         sm = 0
         shortest_sm = 0
@@ -208,7 +210,7 @@ def TargetPath_Attackable(P):
             s = np.random.randint(P.number_of_nodes())
         path_list = [s]
         exists = {s: None}
-        path_length = 50
+        path_length = 75
         u = s
         sm = 0
         shortest_sm = 0
@@ -312,7 +314,7 @@ def TargetPath_Unattackable2(P):
             s = np.random.randint(P.number_of_nodes())
         path_list = [s]
         exists = {s: None}
-        path_length = 50
+        path_length = 75
         u = s
         sm = 0
         shortest_sm = 0

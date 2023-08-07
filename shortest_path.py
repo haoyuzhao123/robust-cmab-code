@@ -8,6 +8,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 # from conf import *
 from Tool.utilFunc import *
+import pandas as pd
 
 from BanditAlg.CLCB import LCB1Algorithm 
 from BanditAlg.CLCB_Attack import LCB1AlgorithmAttack
@@ -85,7 +86,7 @@ class simulateOnlineData:
 
             self.resultRecord(iter_)
 
-        self.showResult()
+        # self.showResult()
         attack_algo = 'CLCB_Attack'
         num_targetarm_played = algorithms[attack_algo].num_targetarm_played
         final_length = 500
@@ -104,7 +105,10 @@ class simulateOnlineData:
             self.filenameTargetRate = os.path.join(save_address, 'Rate{}.csv'.format(target_type + str(self.seed)))
         if target_type == "random":
             self.filenameWriteCost = os.path.join(save_address, 'Cost{}.csv'.format(str(self.seed)))
-            self.filenameTargetRate = os.path.join(save_address, 'Rate{}.csv'.format(str(self.seed)))                
+            self.filenameTargetRate = os.path.join(save_address, 'Rate{}.csv'.format(str(self.seed)))     
+        if target_type == "walk":
+            self.filenameWriteCost = os.path.join(save_address, 'Cost{}.csv'.format(str(self.seed)))
+            self.filenameTargetRate = os.path.join(save_address, 'Rate{}.csv'.format(str(self.seed)))     
 
         # if initialize
         if iter_ is None:
@@ -241,31 +245,6 @@ class simulateOnlineData:
         plt.savefig('./SimulationResults/Loss' + str(self.startTime.strftime('_%m_%d_%H_%M'))+'.png')
         plt.show()
 
-        # for alg_name in algorithms.keys():  
-        #     try:
-        #         loss = algorithms[alg_name].getLoss()
-        #     except:
-        #         continue
-            
-        #     f, ax1 = plt.subplots()
-        #     color = 'tab:red'
-        #     ax1.set_xlabel("Iteration")
-        #     ax1.set_ylabel('Loss of s', color=color)
-        #     ax1.plot(self.tim_, loss, color=color, label=alg_name)
-        #     ax1.tick_params(axis='y', labelcolor=color)
-        #     # ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
-        #     # ax2.set_ylabel('Loss of Theta and Beta', color='tab:blue')  # we already handled the x-label with ax1
-        #     # ax2.plot(self.tim_, loss[:, 1], color='tab:blue', linestyle=':', label = r'$\theta$')
-        #     # ax2.plot(self.tim_, loss[:, 2], color='tab:blue', linestyle='--', label = r'$\beta$')
-        #     # ax2.tick_params(axis='y', labelcolor='tab:blue')
-        #     # ax2.legend(loc='upper left',prop={'size':9})
-        #     f.tight_layout()  # otherwise the right y-label is slightly clipped
-        #     plt.savefig('./SimulationResults/Loss' + str(self.startTime.strftime('_%m_%d_%H_%M'))+'.png')
-        #     plt.show()
-            
-        #     np.save('./SimulationResults/Loss-{}'.format(alg_name) + str(self.startTime.strftime('_%m_%d_%H_%M'))+'.npy', loss)
-            
-        
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
@@ -275,9 +254,9 @@ if __name__ == '__main__':
     parser.add_argument("--edge_feature", help="the address of edge features", type=str, default='./datasets/Flickr/EdgeFeaturesUnion.dic')
     parser.add_argument("--dataset", help="the address of dataset(Choose from 'default', 'NetHEPT', or 'Flickr' as default)", type=str, default='Flickr-Random')
     parser.add_argument("--iter",  type=int, default=3000)
-    parser.add_argument("--save_address",  type=str, default='./SimulationResults/ShortestPath')
+    parser.add_argument("--save_address",  type=str, default='./SimulationResults/ShortestPathAttackability')
     parser.add_argument("--seed", help="random seed", type=int, default=0)
-    parser.add_argument("--target_type", help="how the target is chosen, spchosen, spchosen2, or random"  type=str, default='random')
+    parser.add_argument("--target_type", help="how the target is chosen, spchosen, spchosen2, random or walk", type=str, default='random')
 
     args = parser.parse_args()
     graph_address = args.graph
@@ -326,12 +305,19 @@ if __name__ == '__main__':
     target_type = args.target_type
 
     if target_type == "random":
-        num_exp = 100
+        num_exp = 20
+    if target_type == "walk":
+        num_exp = 20
     if target_type == "spchosen":
         num_exp = 10
     if target_type == "spchosen2":
         num_exp = 10
     sum_attackable = 0
+    attackability_csv = os.path.join(save_address, f'attackability_{target_type}.csv')
+    att_l = []
+    if not os.path.exists(attackability_csv):
+        df = pd.DataFrame(list())
+        df.to_csv(attackability_csv)
     for seed in range(0,num_exp):
         print("round", seed)
         np.random.rand(seed)
@@ -343,6 +329,8 @@ if __name__ == '__main__':
             Target, oracle_params = TargetPath_Unattackable2(P)
         if target_type == "random":
             Target, oracle_params = TargetPath_RandomWeight(P)
+        if target_type == "walk":
+            Target, oracle_params = TargetPath_RandomWalk(P)
 
         # nx.shortest_path(P,oracle_params["start"],oracle_params["end"],weight="weight")
         algorithms = {}
@@ -351,5 +339,8 @@ if __name__ == '__main__':
 
         attackable = simExperiment.runAlgorithms(algorithms, oracle_params)
         sum_attackable += attackable
+        att_l.append(1.0 if attackable else 0.0)
         print("attackable", attackable, sum_attackable/(seed+1))
-   
+    df = pd.read_csv(attackability_csv)
+    df['75'] = att_l
+    df.to_csv(attackability_csv, index=False)
