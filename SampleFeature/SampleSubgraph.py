@@ -41,7 +41,7 @@ print('AverageDegree', sum(NodeDegree.values())/float(len(NodeDegree)))
 
 FinalNodeList =[]
 FinalNodeDegree  = {}
-max_degree = 6000
+max_degree = 1000
 min_degree = 0
 
 for key in NodeDegree:
