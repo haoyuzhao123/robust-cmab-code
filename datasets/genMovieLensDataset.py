@@ -58,7 +58,7 @@ class genMovieLensDataset():
         # exit()
 
         ## subsample best movies
-        means = means[:5000]
+        means = means[:100]
         np.random.shuffle(means)
 
         self.w = {}

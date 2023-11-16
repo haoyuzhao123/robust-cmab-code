@@ -50,12 +50,9 @@ if args.exp_type == 'BaseArmRate':
 exp_num = 0
 
 while os.path.exists(os.path.join('./SimulationResults', args.exp_name, args.exp_type + str(exp_num) + '.csv')):
-    data = pd.read_csv(os.path.join('./SimulationResults', args.exp_name, args.exp_type + str(exp_num) + '.csv'))
+    data = pd.read_csv(os.path.join('./SimulationResults', args.exp_name, args.exp_type + str(exp_num) + '.csv'))[:100000]
     exp.append(data)
     exp_num += 1
-
-    break
-
 
 df = pd.concat(exp, axis=0, ignore_index=True)[::-1]
 

@@ -50,7 +50,7 @@ while os.path.exists(os.path.join('./SimulationResults', args.exp_name, args.exp
     exp_num += 1
 
 
-df = pd.concat(exp, axis=0, ignore_index=True)
+df = pd.concat(exp, axis=0, ignore_index=True).iloc[:12000]
 print(df.shape)
 
 grouped_df_mean = df.groupby(["Time(Iteration)"]).mean()
@@ -71,69 +71,69 @@ for c in range(len(cols)):
     # plt.fill_between(grouped_df_std.index, grouped_df_mean[cols[c]] - grouped_df_std[cols[c]], grouped_df_mean[cols[c]] + grouped_df_std[cols[c]], color=colors[c], alpha=0.2)
     plt.fill_between(grouped_df_std.index, grouped_df_quantile_min[cols[c]], grouped_df_quantile_max[cols[c]], color=colors[c], alpha=0.2)
 
-#plot another exp
-target = "second"
-exp_num = 0
-if os.path.exists(os.path.join('./SimulationResults', args.exp_name, args.exp_type + target + str(exp_num) + '.csv')):
-    exp = []
-    while os.path.exists(os.path.join('./SimulationResults', args.exp_name, args.exp_type + target + str(exp_num) + '.csv')):
-        data = pd.read_csv(os.path.join('./SimulationResults', args.exp_name, args.exp_type + target + str(exp_num) + '.csv'))
-        exp.append(data)
-        exp_num += 1
-    print(exp_num)
+# #plot another exp
+# target = "second"
+# exp_num = 0
+# if os.path.exists(os.path.join('./SimulationResults', args.exp_name, args.exp_type + target + str(exp_num) + '.csv')):
+#     exp = []
+#     while os.path.exists(os.path.join('./SimulationResults', args.exp_name, args.exp_type + target + str(exp_num) + '.csv')):
+#         data = pd.read_csv(os.path.join('./SimulationResults', args.exp_name, args.exp_type + target + str(exp_num) + '.csv'))
+#         exp.append(data)
+#         exp_num += 1
+#     print(exp_num)
 
-    df = pd.concat(exp, axis=0, ignore_index=True)
-    print(df.shape)
+#     df = pd.concat(exp, axis=0, ignore_index=True)
+#     print(df.shape)
 
-    grouped_df_mean = df.groupby(["Time(Iteration)"]).mean()
-    grouped_df_std = df.groupby(["Time(Iteration)"]).std()
-    quant_num = 0.2
-    grouped_df_quantile_min = df.groupby(["Time(Iteration)"]).quantile(quant_num)
-    grouped_df_quantile_max = df.groupby(["Time(Iteration)"]).quantile(1-quant_num)
-    # import ipdb;ipdb.set_trace()
+#     grouped_df_mean = df.groupby(["Time(Iteration)"]).mean()
+#     grouped_df_std = df.groupby(["Time(Iteration)"]).std()
+#     quant_num = 0.2
+#     grouped_df_quantile_min = df.groupby(["Time(Iteration)"]).quantile(quant_num)
+#     grouped_df_quantile_max = df.groupby(["Time(Iteration)"]).quantile(1-quant_num)
+#     # import ipdb;ipdb.set_trace()
 
-    colors = list(mcolors.TABLEAU_COLORS.keys())
-    cols = list(grouped_df_mean.columns)
+#     colors = list(mcolors.TABLEAU_COLORS.keys())
+#     cols = list(grouped_df_mean.columns)
 
-    for c in range(len(cols)):
-        plt.plot(range(grouped_df_mean.shape[0])[:3000], grouped_df_mean[cols[c]][:3000], label='Fixed Target', color=colors[1])
-        plt.fill_between(grouped_df_std.index[:3000], (grouped_df_mean[cols[c]] - grouped_df_std[cols[c]])[:3000], (grouped_df_mean[cols[c]] + grouped_df_std[cols[c]])[:3000], color=colors[1], alpha=0.2)
-        # plt.fill_between(grouped_df_std.index[:3000], grouped_df_quantile_min[cols[c]][:3000], grouped_df_quantile_max[cols[c]][:3000], color=colors[1], alpha=0.2)
+#     for c in range(len(cols)):
+#         plt.plot(range(grouped_df_mean.shape[0])[:3000], grouped_df_mean[cols[c]][:3000], label='Fixed Target', color=colors[1])
+#         plt.fill_between(grouped_df_std.index[:3000], (grouped_df_mean[cols[c]] - grouped_df_std[cols[c]])[:3000], (grouped_df_mean[cols[c]] + grouped_df_std[cols[c]])[:3000], color=colors[1], alpha=0.2)
+#         # plt.fill_between(grouped_df_std.index[:3000], grouped_df_quantile_min[cols[c]][:3000], grouped_df_quantile_max[cols[c]][:3000], color=colors[1], alpha=0.2)
 
-target = "spchosen"
-exp_num = 0
-if os.path.exists(os.path.join('./SimulationResults', args.exp_name, args.exp_type + target + str(exp_num) + '.csv')):
-    exp = []
-    while os.path.exists(os.path.join('./SimulationResults', args.exp_name, args.exp_type + target + str(exp_num) + '.csv')):
-        data = pd.read_csv(os.path.join('./SimulationResults', args.exp_name, args.exp_type + target + str(exp_num) + '.csv'))
-        exp.append(data)
-        exp_num += 1
+# target = "spchosen"
+# exp_num = 0
+# if os.path.exists(os.path.join('./SimulationResults', args.exp_name, args.exp_type + target + str(exp_num) + '.csv')):
+#     exp = []
+#     while os.path.exists(os.path.join('./SimulationResults', args.exp_name, args.exp_type + target + str(exp_num) + '.csv')):
+#         data = pd.read_csv(os.path.join('./SimulationResults', args.exp_name, args.exp_type + target + str(exp_num) + '.csv'))
+#         exp.append(data)
+#         exp_num += 1
 
-    df = pd.concat(exp, axis=0, ignore_index=True)
-    print(df.shape)
+#     df = pd.concat(exp, axis=0, ignore_index=True)
+#     print(df.shape)
 
-    grouped_df_mean = df.groupby(["Time(Iteration)"]).mean()
-    grouped_df_std = df.groupby(["Time(Iteration)"]).std()
-    quant_num = 0.2
-    grouped_df_quantile_min = df.groupby(["Time(Iteration)"]).quantile(quant_num)
-    grouped_df_quantile_max = df.groupby(["Time(Iteration)"]).quantile(1-quant_num)
+#     grouped_df_mean = df.groupby(["Time(Iteration)"]).mean()
+#     grouped_df_std = df.groupby(["Time(Iteration)"]).std()
+#     quant_num = 0.2
+#     grouped_df_quantile_min = df.groupby(["Time(Iteration)"]).quantile(quant_num)
+#     grouped_df_quantile_max = df.groupby(["Time(Iteration)"]).quantile(1-quant_num)
 
-    colors = list(mcolors.TABLEAU_COLORS.keys())
-    cols = list(grouped_df_mean.columns)
+#     colors = list(mcolors.TABLEAU_COLORS.keys())
+#     cols = list(grouped_df_mean.columns)
 
-    for c in range(len(cols)):
-        plt.plot(range(grouped_df_mean.shape[0]), grouped_df_mean[cols[c]], label='Unattackable Target', color=colors[1])
-        plt.fill_between(grouped_df_std.index[:3000], (grouped_df_mean[cols[c]] - grouped_df_std[cols[c]])[:3000], (grouped_df_mean[cols[c]] + grouped_df_std[cols[c]])[:3000], color=colors[1], alpha=0.2)
-        # plt.fill_between(grouped_df_std.index, grouped_df_quantile_min[cols[c]], grouped_df_quantile_max[cols[c]], color=colors[1], alpha=0.2)
+#     for c in range(len(cols)):
+#         plt.plot(range(grouped_df_mean.shape[0]), grouped_df_mean[cols[c]], label='Unattackable Target', color=colors[1])
+#         plt.fill_between(grouped_df_std.index[:3000], (grouped_df_mean[cols[c]] - grouped_df_std[cols[c]])[:3000], (grouped_df_mean[cols[c]] + grouped_df_std[cols[c]])[:3000], color=colors[1], alpha=0.2)
+#         # plt.fill_between(grouped_df_std.index, grouped_df_quantile_min[cols[c]], grouped_df_quantile_max[cols[c]], color=colors[1], alpha=0.2)
 
 
 print("plotting")
 plt.xlabel('Iterations')
 plt.ylabel(y_label)
-if args.exp_name == "SpanningTree":
-    plt.legend(loc="lower right")
-else:
-    plt.legend(loc="upper left")
+# if args.exp_name == "SpanningTree":
+#     plt.legend(loc="lower right")
+# else:
+#     plt.legend(loc="upper left")
 
 plt.title(title)
 
@@ -144,5 +144,5 @@ t.set_x(-0.05)
 plt.tight_layout()
 
 print("saving")
-plt.savefig(os.path.join('./SimulationResults', args.exp_name, args.exp_type + 'std.pdf'))
+plt.savefig(os.path.join('./SimulationResults', args.exp_name, args.exp_type + 'std.png'))
 # plt.show()

@@ -31,7 +31,7 @@ class LCB1Struct(ArmBaseStruct):
 
              
 class LCB1AlgorithmAttack:
-    def __init__(self, P, oracle, target, feedback = 'edge'):
+    def __init__(self, P, oracle, target, feedback = 'edge', optimal_path = None, iter_cutoff = None):
         # self.G = G
         self.trueP = P
         # self.parameter = parameter  
@@ -45,17 +45,28 @@ class LCB1AlgorithmAttack:
             self.currentP.add_edge(u,v, weight=0)
         self.list_loss = []
         self.TotalPlayCounter = 0
+        self.iter_cutoff = iter_cutoff
 
         list = target
         self.target = {}
         self.target_length = len(target)
         for (u,v) in list:
             self.target[(u,v)] = 0
-       
+
+        list = optimal_path
+        self.optimal_path = {}
+        self.optimal_path_length = len(optimal_path)
+        for (u,v) in list:
+            self.optimal_path[(u,v)] = 0
+
+        print("Target Path: ", self.target)
+        print("Optimal Path: ", self.optimal_path)
+
         self.num_targetarm_played = []
         self.totalCost = []
         self.cost = []
         self.num_basearm_played = []
+        self.num_optimal_played = []
         # self.basearmestimate1 = []
         # self.basearmestimate2 = []
         # self.basearmestimate3 = []
@@ -69,14 +80,20 @@ class LCB1AlgorithmAttack:
     def numTargetPlayed(self, live_edges):
         num_basearm_played = 0
         num_targetarm_played = 0
+        num_optimal_played = 0
         for (u,v) in live_edges:
             if (u,v) in self.target:
                 num_basearm_played += 1
                 self.target[(u,v)] = self.target[(u,v)] + 1
+            if (u, v) in self.optimal_path:
+                num_optimal_played += 1
+
         if num_basearm_played == self.target_length:
             num_targetarm_played = 1
         num_basearm_played = num_basearm_played/self.target_length
+        num_optimal_played = num_optimal_played/self.optimal_path_length
         self.num_basearm_played.append(num_basearm_played)
+        self.num_optimal_played.append(num_optimal_played)
         if len(self.num_targetarm_played) == 0:
             self.num_targetarm_played.append(num_targetarm_played)
         else:
@@ -89,7 +106,7 @@ class LCB1AlgorithmAttack:
         cost = 0
         for (u, v, weight) in self.trueP.edges(data="weight"):
             if (u,v) in live_edges:
-                if (u,v) in self.target:
+                if (u,v) in self.target or self.TotalPlayCounter >= self.iter_cutoff: # stop attacking
                     self.arms[(u, v)].updateParameters(reward=live_edges[(u,v)])
                 else:
                     self.arms[(u, v)].updateParameters(reward=1)
